@@ -106,4 +106,35 @@ export class UsersService {
             user: newUser,
         };
     }
+
+    async updateUserProfile(
+        userId: string,
+        updateData: Partial<User>,
+    ): Promise<{ message: string; user: Partial<User> }> {
+        try {
+            const updatedUser = await this.usersRepository.updateUserProfile(
+                userId,
+                updateData,
+            );
+
+            const userResponse = {
+                id: updatedUser.id,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                phone: updatedUser.phone,
+                birthdate: updatedUser.birthdate,
+                profileImage: updatedUser.profileImage,
+            };
+
+            return {
+                message: 'Profile updated successfully',
+                user: userResponse,
+            };
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error updating profile',
+                error.message,
+            );
+        }
+    }
 }
