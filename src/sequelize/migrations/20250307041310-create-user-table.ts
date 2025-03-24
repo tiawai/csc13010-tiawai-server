@@ -38,6 +38,10 @@ export = {
                 type: DataTypes.DATE,
                 allowNull: false,
             },
+            gender: {
+                type: DataTypes.ENUM('male', 'female'),
+                allowNull: false,
+            },
             otp: {
                 type: DataTypes.STRING,
                 allowNull: true,
