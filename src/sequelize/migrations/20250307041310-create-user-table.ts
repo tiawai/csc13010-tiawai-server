@@ -62,7 +62,7 @@ export = {
             profileImage: {
                 type: DataTypes.STRING,
                 allowNull: true,
-                defaultValue: process.env.DEFAULT_PROFILE_IMAGE,
+                defaultValue: process.env.DEFAULT_PROFILE_PICTURE,
             },
             createdAt: {
                 type: DataTypes.DATE,
