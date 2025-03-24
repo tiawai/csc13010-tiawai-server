@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { Role } from '../../auth/enums/roles.enum';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
+import { Gender } from '../../auth/enums/gender.enum';
 
 dotenv.config();
 
@@ -46,12 +47,13 @@ export = {
                     username: process.env.ADMIN_USERNAME || 'admin01',
                     email: adminEmail,
                     password: adminPassword,
+                    gender: Gender.MALE,
                     phone: '1234567890',
                     address: 'Ho Chi Minh City, Vietnam',
                     birthdate: new Date('1990-01-01'),
                     role: Role.ADMIN,
                     balance: 0,
-                    profileImage: process.env.DEFAULT_PROFILE_IMAGE,
+                    profileImage: process.env.DEFAULT_PROFILE_PICTURE,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 },
@@ -60,12 +62,13 @@ export = {
                     username: 'teacher01',
                     email: teacherEmail,
                     password: teacherPassword,
+                    gender: Gender.MALE,
                     phone: '0987654321',
                     address: 'Hanoi, Vietnam',
                     birthdate: new Date('1995-05-15'),
                     role: Role.TEACHER,
                     balance: 1000000,
-                    profileImage: process.env.DEFAULT_PROFILE_IMAGE,
+                    profileImage: process.env.DEFAULT_PROFILE_PICTURE,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 },
@@ -74,12 +77,13 @@ export = {
                     username: 'student01',
                     email: studentEmail,
                     password: studentPassword,
+                    gender: Gender.FEMALE,
                     phone: '0123456789',
                     address: 'Da Nang, Vietnam',
                     birthdate: new Date('2000-09-20'),
                     role: Role.STUDENT,
                     balance: 0,
-                    profileImage: process.env.DEFAULT_PROFILE_IMAGE,
+                    profileImage: process.env.DEFAULT_PROFILE_PICTURE,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 },

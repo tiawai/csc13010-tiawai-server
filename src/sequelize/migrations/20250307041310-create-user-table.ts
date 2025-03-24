@@ -38,6 +38,10 @@ export = {
                 type: DataTypes.DATE,
                 allowNull: false,
             },
+            gender: {
+                type: DataTypes.ENUM('male', 'female'),
+                allowNull: false,
+            },
             otp: {
                 type: DataTypes.STRING,
                 allowNull: true,
@@ -58,7 +62,7 @@ export = {
             profileImage: {
                 type: DataTypes.STRING,
                 allowNull: true,
-                defaultValue: process.env.DEFAULT_PROFILE_IMAGE,
+                defaultValue: process.env.DEFAULT_PROFILE_PICTURE,
             },
             createdAt: {
                 type: DataTypes.DATE,

@@ -1,30 +1,43 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
-    IsDateString,
+    IsEmail,
+    IsEnum,
     IsOptional,
     IsPhoneNumber,
     IsString,
+    MinLength,
 } from 'class-validator';
-import { CreateUserDto } from './create-user.dto';
+import { Gender } from '../../auth/enums/gender.enum';
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {
-    @ApiProperty({ required: false })
+export class UpdateUserDto {
+    @ApiProperty({ description: 'User name', required: false })
     @IsOptional()
     @IsString()
+    @MinLength(3)
     username?: string;
 
-    @ApiProperty({ required: false })
+    @ApiProperty({ description: 'User email', required: false })
     @IsOptional()
-    @IsString()
+    @IsEmail()
     email?: string;
 
-    @ApiProperty({ required: false })
+    @ApiProperty({ description: 'User phone number', required: false })
     @IsOptional()
-    @IsPhoneNumber('VN')
+    @IsPhoneNumber()
     phone?: string;
 
-    @ApiProperty({ required: false })
+    @ApiProperty({ description: 'User birthdate', required: false })
     @IsOptional()
-    @IsDateString()
+    @IsString()
     birthdate?: string;
+
+    @ApiProperty({ description: 'User gender', required: false })
+    @IsOptional()
+    @IsEnum(Gender)
+    gender?: Gender;
+
+    @ApiProperty({ description: 'User address', required: false })
+    @IsOptional()
+    @IsString()
+    address?: string;
 }

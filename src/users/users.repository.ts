@@ -253,7 +253,30 @@ export class UsersRepository {
                 { profileImage: imageUrl },
                 { where: { id } },
             );
-        } catch (error) {
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
+
+    async updateUserProfile(
+        id: string,
+        updateData: Partial<User>,
+    ): Promise<User> {
+        try {
+            const [updatedCount, updatedUsers] = await this.userModel.update(
+                updateData,
+                {
+                    where: { id },
+                    returning: true,
+                },
+            );
+
+            if (updatedCount === 0) {
+                throw new NotFoundException(`User with id ${id} not found`);
+            }
+
+            return updatedUsers[0].dataValues as User;
+        } catch (error: any) {
             throw new InternalServerErrorException((error as Error).message);
         }
     }

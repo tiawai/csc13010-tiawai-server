@@ -10,6 +10,8 @@ import {
     UseInterceptors,
     UploadedFile,
     Put,
+    Patch,
+    Body,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { UsersService } from './users.service';
@@ -28,6 +30,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { ProfileDto } from '../auth/dtos/cred.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Multer } from 'multer';
+import { UpdateUserDto } from './dtos/update-user.dto';
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
@@ -126,6 +129,22 @@ export class UsersController {
         return this.usersService.deleteEmployee(id);
     }
     */
+
+    @ApiOperation({ summary: 'Update user profile [USER]' })
+    @ApiBearerAuth('access-token')
+    @Patch('user')
+    @ApiResponse({
+        status: 200,
+        description: 'Update profile successfully',
+        type: ProfileDto,
+    })
+    @UseGuards(ATAuthGuard)
+    async updateUserProfile(
+        @Request() req: any,
+        @Body() updateUserDto: UpdateUserDto,
+    ) {
+        return this.usersService.updateUserProfile(req.user.id, updateUserDto);
+    }
 
     @ApiOperation({ summary: 'Upload profile image [USER]' })
     @ApiBearerAuth('access-token')

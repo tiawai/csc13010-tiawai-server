@@ -1,7 +1,9 @@
 import { Column, Model, Table } from 'sequelize-typescript';
 import { Role } from '../../auth/enums/roles.enum';
 import { DataTypes } from 'sequelize';
-
+import { Gender } from '../../auth/enums/gender.enum';
+import dotenv from 'dotenv';
+dotenv.config();
 @Table({
     tableName: 'accounts',
     timestamps: true,
@@ -50,6 +52,18 @@ export class User extends Model {
     birthdate: string;
 
     @Column({
+        type: DataTypes.STRING,
+        allowNull: false,
+    })
+    gender: Gender;
+
+    @Column({
+        type: DataTypes.STRING,
+        allowNull: false,
+    })
+    address: string;
+
+    @Column({
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     })
@@ -81,7 +95,7 @@ export class User extends Model {
     @Column({
         type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: process.env.DEFAULT_PROFILE_IMAGE,
+        defaultValue: process.env.DEFAULT_PROFILE_PICTURE,
     })
     profileImage: string;
 
