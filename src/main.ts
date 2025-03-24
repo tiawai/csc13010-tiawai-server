@@ -102,4 +102,4 @@ async function bootstrap() {
 
     await app.listen(port, () => logger.warn(`> Listening on port ${port}`));
 }
-bootstrap();
+void bootstrap();
