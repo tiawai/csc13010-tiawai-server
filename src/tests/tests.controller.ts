@@ -731,14 +731,14 @@ export class TestsController {
         @Body() updateDto: UpdateToeicQuestionsDto,
     ) {
         const questions = hasImages
-            ? await this.questionsService.createVisualSecondPartQuestionsForToeicReadingTest(
+            ? await this.questionsService.createVisualThirdPartQuestionsForToeicReadingTest(
                   testId,
                   100,
                   updateDto.questions,
                   updateDto.imageUrls,
                   updateDto.batch,
               )
-            : await this.questionsService.createTextSecondPartQuestionsForToeicReadingTest(
+            : await this.questionsService.createTextThirdPartQuestionsForToeicReadingTest(
                   testId,
                   100,
                   updateDto.questions,
