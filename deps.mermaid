@@ -7,6 +7,7 @@ graph LR
   AppModule-->RedisCoreModule
   AppModule-->SequelizeCoreModule
   AppModule-->SequelizeModule
+  AppModule-->TestsModule
   AppModule-->UsersModule
   AuthModule-->ConfigHostModule
   AuthModule-->ConfigModule
@@ -63,6 +64,12 @@ graph LR
   SequelizeModule-->MailerCoreModule
   SequelizeModule-->RedisCoreModule
   SequelizeModule-->SequelizeCoreModule
+  TestsModule-->ConfigHostModule
+  TestsModule-->ConfigModule
+  TestsModule-->MailerCoreModule
+  TestsModule-->RedisCoreModule
+  TestsModule-->SequelizeCoreModule
+  TestsModule-->SequelizeModule
   UsersModule-->ConfigHostModule
   UsersModule-->ConfigModule
   UsersModule-->MailerCoreModule
