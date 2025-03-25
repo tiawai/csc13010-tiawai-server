@@ -4,6 +4,7 @@ import { Test } from '../entities/test.model';
 import { CreateTestDto } from '../dtos/create-test.dto';
 import { CreateQuestionDto } from '../dtos/create-question.dto';
 import { QuestionsService } from './questions.service';
+
 @Injectable()
 export class TestsService {
     constructor(
@@ -22,7 +23,7 @@ export class TestsService {
         }
     }
 
-    async createTest(
+    async createNationalTest(
         createTestDto: CreateTestDto,
         createQuestionsDto: CreateQuestionDto[],
         authorId: string,
@@ -33,10 +34,31 @@ export class TestsService {
                 authorId,
             );
 
-            await this.questionsService.createBatchQuestions(
+            await this.questionsService.createNationalTestBatchQuestions(
                 test.id,
                 createTestDto.totalQuestions,
                 createQuestionsDto,
+            );
+
+            return test;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error creating test',
+                error.message,
+            );
+        }
+    }
+
+    async createToeicListeningTest(
+        createTestDto: CreateTestDto,
+        authorId: string,
+        audioUrl: string,
+    ): Promise<Test> {
+        try {
+            const test = await this.testsRepository.createTest(
+                createTestDto,
+                authorId,
+                audioUrl,
             );
 
             return test;

@@ -36,7 +36,7 @@ export class Test extends Model {
 
     @Column({
         type: DataTypes.ENUM(
-            TestType.TOEIC,
+            TestType.TOEIC_LISTENING,
             TestType.NATIONAL_TEST,
             TestType.ASSIGNMENT,
         ),
@@ -59,14 +59,22 @@ export class Test extends Model {
     @Column({
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 100,
     })
     totalQuestions: number;
 
     @Column({
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 120,
     })
     timeLength: number;
+
+    @Column({
+        type: DataTypes.STRING,
+        allowNull: true,
+    })
+    audioUrl: string;
 
     @Column({
         type: DataTypes.BOOLEAN,

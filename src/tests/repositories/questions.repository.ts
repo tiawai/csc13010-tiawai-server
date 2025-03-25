@@ -2,7 +2,6 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Question } from '../entities/question.model';
 import { CreateQuestionDto } from '../dtos/create-question.dto';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class QuestionsRepository {
@@ -13,13 +12,14 @@ export class QuestionsRepository {
 
     async createQuestion(
         testId: string,
+        questionId: string,
         questionData: CreateQuestionDto,
         choiceId: string,
         questionOrder: number,
     ): Promise<Question> {
         try {
             const question = await this.questionModel.create({
-                id: uuidv4(),
+                id: questionId,
                 questionOrder: questionOrder,
                 paragraph: questionData.paragraph,
                 content: questionData.content,

@@ -23,13 +23,13 @@ export class Question extends Model {
 
     @Column({
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     paragraph: string;
 
     @Column({
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     content: string;
 
@@ -47,7 +47,7 @@ export class Question extends Model {
 
     @Column({
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     explanation: string;
 

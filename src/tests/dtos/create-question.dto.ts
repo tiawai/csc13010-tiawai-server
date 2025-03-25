@@ -13,13 +13,15 @@ import { CreateChoiceDto } from './create-choice.dto';
 export class CreateQuestionDto {
     @ApiProperty({ description: 'Paragraph text for the question' })
     @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    paragraph: string;
+    paragraph?: string;
 
     @ApiProperty({ description: 'Question content' })
     @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    content: string;
+    content?: string;
 
     @ApiProperty({ description: 'Array of image URLs', required: false })
     @IsOptional()
@@ -34,13 +36,15 @@ export class CreateQuestionDto {
 
     @ApiProperty({ description: 'Explanation for the correct answer' })
     @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    explanation: string;
+    explanation?: string;
 
     @ApiProperty({ description: 'Points for this question' })
     @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
-    points: number;
+    points?: number;
 
     @ApiProperty({ description: 'Choices for this question' })
     @IsNotEmpty()

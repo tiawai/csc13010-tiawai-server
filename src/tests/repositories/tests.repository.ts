@@ -23,6 +23,7 @@ export class TestsRepository {
     async createTest(
         createTestDto: CreateTestDto,
         authorId: string,
+        audioUrl?: string,
     ): Promise<Test> {
         try {
             const test = await this.testModel.create({
@@ -33,8 +34,9 @@ export class TestsRepository {
                 endDate: createTestDto.endDate,
                 isGenerated: false,
                 author: authorId,
-                totalQuestions: createTestDto.totalQuestions,
-                timeLength: createTestDto.timeLength,
+                audioUrl: audioUrl || null,
+                totalQuestions: createTestDto.totalQuestions || 100,
+                timeLength: createTestDto.timeLength || 120,
             });
 
             if (!test) {

@@ -30,24 +30,28 @@ export class Choice extends Model {
     @Column({
         type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: '',
     })
     A: string;
 
     @Column({
         type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: '',
     })
     B: string;
 
     @Column({
         type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: '',
     })
     C: string;
 
     @Column({
         type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: '',
     })
     D: string;
 }

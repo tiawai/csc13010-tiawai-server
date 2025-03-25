@@ -10,6 +10,7 @@ import { Test } from './entities/test.model';
 import { Question } from './entities/question.model';
 import { Choice } from './entities/choice.model';
 import { AccessControlService } from '../ac/ac.service';
+import { UploadService } from '../uploader/upload.service';
 @Module({
     imports: [SequelizeModule.forFeature([Test, Question, Choice])],
     controllers: [TestsController],
@@ -20,6 +21,7 @@ import { AccessControlService } from '../ac/ac.service';
         QuestionsRepository,
         ChoicesRepository,
         AccessControlService,
+        UploadService,
     ],
     exports: [TestsService, QuestionsService],
 })

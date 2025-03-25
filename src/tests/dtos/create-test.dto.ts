@@ -4,6 +4,7 @@ import {
     IsEnum,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
 } from 'class-validator';
 import { TestType } from '../enums/test-type.enum';
@@ -14,14 +15,10 @@ export class CreateTestDto {
     @IsString()
     title: string;
 
-    @ApiProperty({
-        description: 'Type of the test',
-        enum: TestType,
-        enumName: 'TestType',
-    })
     @IsNotEmpty()
+    @IsOptional()
     @IsEnum(TestType)
-    type: TestType;
+    type?: TestType;
 
     @ApiProperty({
         description: 'Start date of the test',
@@ -44,16 +41,18 @@ export class CreateTestDto {
         type: Number,
     })
     @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
-    totalQuestions: number;
+    totalQuestions?: number;
 
     @ApiProperty({
         description: 'Total time of the test in minutes',
         type: Number,
     })
     @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
-    timeLength: number;
+    timeLength?: number;
 }
 
 export class CreateTestResponseDto extends CreateTestDto {

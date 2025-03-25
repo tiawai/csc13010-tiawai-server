@@ -4,13 +4,13 @@ import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 import { CreateTestDto } from './create-test.dto';
 import { CreateQuestionDto } from './create-question.dto';
 
-export class CreateTestWithQuestionsDto {
+export class CreateNationalTestWithQuestionsDto {
     @ApiProperty({
         description: 'Test information',
         type: CreateTestDto,
         example: {
-            title: 'TOEIC Mock Test 1',
-            type: 'TOEIC',
+            title: 'National Mock Tess 1',
+            type: 'National Test',
             startDate: '2025-03-25T07:42:40.039Z',
             endDate: '2025-03-26T07:42:40.039Z',
             totalQuestions: 2,
