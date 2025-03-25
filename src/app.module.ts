@@ -8,7 +8,7 @@ import pg from 'pg';
 import { User } from './users/entities/user.model';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './auth/auth.module';
-
+import { TestsModule } from './tests/tests.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -59,6 +59,7 @@ import { AuthModule } from './auth/auth.module';
         }),
         AuthModule,
         UsersModule,
+        TestsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
