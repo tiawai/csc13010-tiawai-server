@@ -34,7 +34,7 @@ import { CreateTestResponseDto } from './dtos/create-test.dto';
 import { TestType } from './enums/test-type.enum';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import type { Multer } from 'multer';
-import { UpdateToeicListeningQuestionsDto } from './dtos/update-toeic-listening-questions.dto';
+import { UpdateToeicQuestionsDto } from './dtos/update-toeic-questions.dto';
 import { QuestionsService } from './services/questions.service';
 @Controller('tests')
 export class TestsController {
@@ -230,7 +230,7 @@ export class TestsController {
             },
         }),
     )
-    async uploadImages(
+    async uploadImagesForToeicListeningTest(
         @Query('testId') testId: string,
         @UploadedFiles() files: Multer.File[],
     ) {
@@ -241,6 +241,7 @@ export class TestsController {
         const imageUrls = await this.uploadService.uploadTestImages(
             files,
             testId,
+            'toeic-listening-test',
         );
 
         return {
@@ -250,8 +251,7 @@ export class TestsController {
     }
 
     @ApiOperation({
-        summary:
-            'Create questions and assign images for TOEIC listening test [ADMIN]',
+        summary: 'Create questions part 1 for TOEIC listening test [ADMIN]',
     })
     @ApiBearerAuth('access-token')
     @Post('admin/toeic-listening-test/part-1')
@@ -289,7 +289,7 @@ export class TestsController {
     @Roles(Role.ADMIN)
     async createFirstPartQuestions(
         @Query('testId') testId: string,
-        @Body() updateDto: UpdateToeicListeningQuestionsDto,
+        @Body() updateDto: UpdateToeicQuestionsDto,
     ) {
         const questions = await this.questionsService.createFirstPartQuestions(
             testId,
@@ -345,7 +345,7 @@ export class TestsController {
     @Roles(Role.ADMIN)
     async createSecondPartQuestions(
         @Query('testId') testId: string,
-        @Body() updateDto: UpdateToeicListeningQuestionsDto,
+        @Body() updateDto: UpdateToeicQuestionsDto,
     ) {
         const questions = await this.questionsService.createSecondPartQuestions(
             testId,
@@ -391,7 +391,7 @@ export class TestsController {
     async createThirdPartQuestions(
         @Query('testId') testId: string,
         @Query('hasImages', ParseBoolPipe) hasImages: boolean,
-        @Body() updateDto: UpdateToeicListeningQuestionsDto,
+        @Body() updateDto: UpdateToeicQuestionsDto,
     ) {
         const questions = hasImages
             ? await this.questionsService.createVisualThirdPartQuestions(
@@ -445,7 +445,7 @@ export class TestsController {
     async createFourthPartQuestions(
         @Query('testId') testId: string,
         @Query('hasImages', ParseBoolPipe) hasImages: boolean,
-        @Body() updateDto: UpdateToeicListeningQuestionsDto,
+        @Body() updateDto: UpdateToeicQuestionsDto,
     ) {
         const questions = hasImages
             ? await this.questionsService.createVisualFourthPartQuestions(
@@ -456,6 +456,289 @@ export class TestsController {
                   updateDto.batch,
               )
             : await this.questionsService.createTextFourthPartQuestions(
+                  testId,
+                  100,
+                  updateDto.questions,
+              );
+
+        return {
+            message: 'Questions created successfully',
+            questions: questions.map((q) => ({
+                questionOrder: q.questionOrder,
+                images: q.images,
+                content: q.content,
+                choices: q.choices,
+            })),
+        };
+    }
+
+    @ApiOperation({
+        summary: 'Create a new TOEIC reading test [ADMIN]',
+    })
+    @ApiBearerAuth('access-token')
+    @Post('admin/toeic-reading-test')
+    @ApiResponse({
+        status: 201,
+        description: 'TOEIC reading test created successfully',
+        type: CreateTestResponseDto,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    async createToeicReadingTest(
+        @Request() req: any,
+        @Body() createTestDto: CreateTestDto,
+    ) {
+        const test = await this.testsService.createToeicReadingTest(
+            createTestDto,
+            req.user.id,
+        );
+
+        const result = {
+            id: test.id,
+            title: test.title,
+            type: test.type,
+            startDate: test.startDate,
+            endDate: test.endDate,
+            totalQuestions: test.totalQuestions,
+            timeLength: test.timeLength,
+        };
+
+        return result;
+    }
+
+    @ApiOperation({
+        summary: 'Upload images for TOEIC reading test [ADMIN]',
+    })
+    @ApiBearerAuth('access-token')
+    @Post('admin/toeic-reading-test/images')
+    @ApiQuery({
+        name: 'testId',
+        required: true,
+        description: 'ID of the TOEIC reading test',
+        type: String,
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                images: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        format: 'binary',
+                    },
+                    description:
+                        'Array of image files (supports .jpg, .jpeg, .png)',
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Images uploaded successfully',
+        schema: {
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+                imageUrls: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Array of uploaded image URLs',
+                },
+            },
+        },
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    @UseInterceptors(
+        FilesInterceptor('images', 20, {
+            fileFilter: (req, file, cb) => {
+                if (!file.mimetype.match(/^image\/(jpg|jpeg|png)$/)) {
+                    cb(
+                        new BadRequestException(
+                            'Only .jpg, .jpeg, and .png files are allowed',
+                        ),
+                        false,
+                    );
+                }
+                cb(null, true);
+            },
+            limits: {
+                fileSize: 5 * 1024 * 1024, // 5MB
+            },
+        }),
+    )
+    async uploadImagesForToeicReadingTest(
+        @Query('testId') testId: string,
+        @UploadedFiles() files: Multer.File[],
+    ) {
+        if (!files || files.length === 0) {
+            throw new BadRequestException('No images uploaded');
+        }
+
+        const imageUrls = await this.uploadService.uploadTestImages(
+            files,
+            testId,
+            'toeic-reading-test',
+        );
+
+        return {
+            message: 'Images uploaded successfully',
+            imageUrls,
+        };
+    }
+
+    @ApiOperation({
+        summary: 'Create questions part 1 for TOEIC reading test [ADMIN]',
+    })
+    @ApiBearerAuth('access-token')
+    @Post('admin/toeic-reading-test/part-1')
+    @ApiQuery({
+        name: 'testId',
+        required: true,
+        description: 'ID of the TOEIC reading test',
+        type: String,
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Questions part 1 created successfully',
+        schema: {
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+                questions: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            questionOrder: { type: 'number' },
+                            images: {
+                                type: 'array',
+                                items: { type: 'string' },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    async createFirstPartQuestionsForToeicReadingTest(
+        @Query('testId') testId: string,
+        @Body() updateDto: UpdateToeicQuestionsDto,
+    ) {
+        const questions =
+            await this.questionsService.createFirstPartQuestionsForToeicReadingTest(
+                testId,
+                100,
+                updateDto.questions,
+            );
+
+        return {
+            message: 'Questions created successfully',
+            questions: questions.map((q) => ({
+                id: q.id,
+                questionOrder: q.questionOrder,
+                images: q.images,
+                content: q.content,
+                choices: q.choices,
+            })),
+        };
+    }
+
+    @ApiOperation({
+        summary: 'Create questions part 2 for TOEIC reading test [ADMIN]',
+    })
+    @ApiBearerAuth('access-token')
+    @Post('admin/toeic-reading-test/part-2')
+    @ApiQuery({
+        name: 'testId',
+        required: true,
+        description: 'ID of the TOEIC reading test',
+        type: String,
+    })
+    @ApiQuery({
+        name: 'hasImages',
+        required: true,
+        description: 'Flag to indicate if questions have images',
+        type: Boolean,
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Questions part 2 created successfully',
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    async createSecondPartQuestionsForToeicReadingTest(
+        @Query('testId') testId: string,
+        @Query('hasImages', ParseBoolPipe) hasImages: boolean,
+        @Body() updateDto: UpdateToeicQuestionsDto,
+    ) {
+        const questions = hasImages
+            ? await this.questionsService.createVisualSecondPartQuestionsForToeicReadingTest(
+                  testId,
+                  100,
+                  updateDto.questions,
+                  updateDto.imageUrls,
+                  updateDto.batch,
+              )
+            : await this.questionsService.createTextSecondPartQuestionsForToeicReadingTest(
+                  testId,
+                  100,
+                  updateDto.questions,
+              );
+
+        return {
+            message: 'Questions created successfully',
+            questions: questions.map((q) => ({
+                questionOrder: q.questionOrder,
+                images: q.images,
+                content: q.content,
+                choices: q.choices,
+            })),
+        };
+    }
+
+    @ApiOperation({
+        summary: 'Create questions part 3 for TOEIC reading test [ADMIN]',
+    })
+    @ApiBearerAuth('access-token')
+    @Post('admin/toeic-reading-test/part-3')
+    @ApiQuery({
+        name: 'testId',
+        required: true,
+        description: 'ID of the TOEIC reading test',
+        type: String,
+    })
+    @ApiQuery({
+        name: 'hasImages',
+        required: true,
+        description: 'Flag to indicate if questions have images',
+        type: Boolean,
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Questions part 2 created successfully',
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    async createThirdPartQuestionsForToeicReadingTest(
+        @Query('testId') testId: string,
+        @Query('hasImages', ParseBoolPipe) hasImages: boolean,
+        @Body() updateDto: UpdateToeicQuestionsDto,
+    ) {
+        const questions = hasImages
+            ? await this.questionsService.createVisualSecondPartQuestionsForToeicReadingTest(
+                  testId,
+                  100,
+                  updateDto.questions,
+                  updateDto.imageUrls,
+                  updateDto.batch,
+              )
+            : await this.questionsService.createTextSecondPartQuestionsForToeicReadingTest(
                   testId,
                   100,
                   updateDto.questions,

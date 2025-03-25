@@ -9,7 +9,7 @@ import { IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateQuestionDto } from './create-question.dto';
 
-export class UpdateToeicListeningQuestionsDto {
+export class UpdateToeicQuestionsDto {
     @ApiProperty({
         description:
             'Array of batch, which is for Part 3, 4 of Visual TOEIC Listening Test',

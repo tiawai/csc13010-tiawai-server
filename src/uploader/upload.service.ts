@@ -94,6 +94,7 @@ export class UploadService {
     async uploadTestImages(
         files: Multer.File[],
         testId: string,
+        folderName: string,
     ): Promise<string[]> {
         try {
             const bucket = this.configService.get<string>('DO_SPACES_BUCKET');
@@ -123,7 +124,7 @@ export class UploadService {
             // Upload all images
             const uploadPromises = files.map(async (file, index) => {
                 // Create a specific path for test images
-                const fileKey = `tests/${testId}/${file.originalname}`;
+                const fileKey = `tests/${folderName}/${testId}/${file.originalname}`;
 
                 const params: S3.PutObjectRequest = {
                     Bucket: bucket,

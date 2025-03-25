@@ -207,7 +207,166 @@ export class QuestionsService {
             return createdQuestions;
         } catch (error) {
             throw new InternalServerErrorException(
-                'Error creating first part questions',
+                'Error creating first part questions for TOEIC listening test',
+                error.message,
+            );
+        }
+    }
+
+    public async createFirstPartQuestionsForToeicReadingTest(
+        testId: string,
+        totalQuestions: number,
+        questions: CreateQuestionDto[],
+    ): Promise<Question[]> {
+        try {
+            const createdQuestions: Question[] = [];
+
+            for (let i = 0; i < 30; ++i) {
+                const question = {
+                    ...questions[i],
+                    images: [],
+                    paragraph: null,
+                    content: questions[i].content,
+                    explanation: null,
+                    points: Number((10 / totalQuestions).toFixed(2)),
+                };
+                const questionId = uuidv4();
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                const createdQuestion =
+                    await this.questionsRepository.createQuestion(
+                        testId,
+                        questionId,
+                        question,
+                        choice.id,
+                        i + 1,
+                    );
+
+                createdQuestions.push(createdQuestion);
+            }
+
+            return createdQuestions;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error creating first part questions for TOEIC reading test',
+                error.message,
+            );
+        }
+    }
+
+    public async createVisualSecondPartQuestionsForToeicReadingTest(
+        testId: string,
+        totalQuestions: number,
+        questions: CreateQuestionDto[],
+        imagesUrls: string[],
+        batch: number[],
+    ): Promise<Question[]> {
+        try {
+            const urls: Map<number, { url: string; sequence: number }[]> =
+                this.parseImageUrlsToQuestions(imagesUrls);
+
+            // check if the batch is valid
+            let startingIndex = 30;
+            for (let i = 0; i < batch.length; i++) {
+                const step = batch[i];
+                startingIndex = startingIndex + step;
+            }
+            if (startingIndex != 46) {
+                throw new BadRequestException('Invalid batch');
+            }
+
+            const createdQuestions: Question[] = [];
+            startingIndex = 30;
+            for (let i = 0; i < batch.length; i++) {
+                const step = batch[i];
+                const image = urls.get(startingIndex + 1);
+                for (
+                    let idx = startingIndex;
+                    idx < startingIndex + step;
+                    ++idx
+                ) {
+                    const question = {
+                        ...questions[idx],
+                        images:
+                            idx === startingIndex
+                                ? image.map((item) => item.url)
+                                : [],
+                        paragraph: null,
+                        content: questions[idx].content,
+                        explanation: null,
+                        points: Number((10 / totalQuestions).toFixed(2)),
+                    };
+                    const questionId = uuidv4();
+                    const choice = await this.choicesRepository.createChoice(
+                        questionId,
+                        questions[idx].choices,
+                    );
+
+                    const createdQuestion =
+                        await this.questionsRepository.createQuestion(
+                            testId,
+                            questionId,
+                            question,
+                            choice.id,
+                            i + 1,
+                        );
+
+                    createdQuestions.push(createdQuestion);
+                }
+                startingIndex = startingIndex + step;
+            }
+
+            return createdQuestions;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error creating second part questions for TOEIC reading test',
+                error.message,
+            );
+        }
+    }
+
+    public async createTextSecondPartQuestionsForToeicReadingTest(
+        testId: string,
+        totalQuestions: number,
+        questions: CreateQuestionDto[],
+    ): Promise<Question[]> {
+        try {
+            const createdQuestions: Question[] = [];
+
+            for (let i = 30; i < 46; ++i) {
+                const question = {
+                    ...questions[i],
+                    images: [],
+                    paragraph: null,
+                    content: questions[i].content,
+                    explanation: null,
+                    points: Number((10 / totalQuestions).toFixed(2)),
+                };
+                const questionId = uuidv4();
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                const createdQuestion =
+                    await this.questionsRepository.createQuestion(
+                        testId,
+                        questionId,
+                        question,
+                        choice.id,
+                        i + 1,
+                    );
+
+                createdQuestions.push(createdQuestion);
+            }
+
+            return createdQuestions;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error creating text second part questions for TOEIC reading test',
                 error.message,
             );
         }
@@ -256,7 +415,122 @@ export class QuestionsService {
             return createdQuestions;
         } catch (error) {
             throw new InternalServerErrorException(
-                'Error creating second part questions',
+                'Error creating second part questions for TOEIC listening test',
+                error.message,
+            );
+        }
+    }
+
+    public async createTextThirdPartQuestionsForToeicReadingTest(
+        testId: string,
+        totalQuestions: number,
+        questions: CreateQuestionDto[],
+    ): Promise<Question[]> {
+        try {
+            const createdQuestions: Question[] = [];
+
+            for (let i = 46; i < 100; i++) {
+                const question = {
+                    ...questions[i],
+                    images: [],
+                    paragraph: null,
+                    content: questions[i].content,
+                    explanation: null,
+                    points: Number((10 / totalQuestions).toFixed(2)),
+                };
+                const questionId = uuidv4();
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                const createdQuestion =
+                    await this.questionsRepository.createQuestion(
+                        testId,
+                        questionId,
+                        question,
+                        choice.id,
+                        i + 1,
+                    );
+
+                createdQuestions.push(createdQuestion);
+            }
+
+            return createdQuestions;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error creating text third part questions for TOEIC reading test',
+                error.message,
+            );
+        }
+    }
+
+    public async createVisualThirdPartQuestionsForToeicReadingTest(
+        testId: string,
+        totalQuestions: number,
+        questions: CreateQuestionDto[],
+        imagesUrls: string[],
+        batch: number[],
+    ): Promise<Question[]> {
+        try {
+            const urls: Map<number, { url: string; sequence: number }[]> =
+                this.parseImageUrlsToQuestions(imagesUrls);
+
+            // check if the batch is valid
+            let startingIndex = 47;
+            for (let i = 0; i < batch.length; i++) {
+                const step = batch[i];
+                startingIndex = startingIndex + step;
+            }
+            if (startingIndex != 100) {
+                throw new BadRequestException('Invalid batch');
+            }
+
+            const createdQuestions: Question[] = [];
+            startingIndex = 46;
+            for (let i = 0; i < batch.length; i++) {
+                const step = batch[i];
+                const image = urls.get(startingIndex + 1);
+                for (
+                    let idx = startingIndex;
+                    idx < startingIndex + step;
+                    idx++
+                ) {
+                    const question = {
+                        ...questions[idx],
+                        images:
+                            idx === startingIndex
+                                ? image.map((item) => item.url)
+                                : [],
+                        paragraph: null,
+                        content: questions[idx].content,
+                        explanation: null,
+                        points: Number((10 / totalQuestions).toFixed(2)),
+                    };
+                    const questionId = uuidv4();
+                    const choice = await this.choicesRepository.createChoice(
+                        questionId,
+                        questions[idx].choices,
+                    );
+
+                    const createdQuestion =
+                        await this.questionsRepository.createQuestion(
+                            testId,
+                            questionId,
+                            question,
+                            choice.id,
+                            idx + 1,
+                        );
+
+                    createdQuestions.push(createdQuestion);
+                }
+                startingIndex = startingIndex + step;
+            }
+
+            return createdQuestions;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error creating visual third part questions for TOEIC reading test',
                 error.message,
             );
         }
@@ -274,6 +548,7 @@ export class QuestionsService {
                 const question = {
                     ...questions[i],
                     paragraph: null,
+                    images: [],
                     content: questions[i].content,
                     explanation: null,
                     points: Number((10 / totalQuestions).toFixed(2)),
@@ -300,7 +575,7 @@ export class QuestionsService {
             return createdQuestions;
         } catch (error) {
             throw new InternalServerErrorException(
-                'Error creating text third part questions',
+                'Error creating text third part questions for TOEIC listening test',
                 error.message,
             );
         }
@@ -318,7 +593,7 @@ export class QuestionsService {
                 this.parseImageUrlsToQuestions(imagesUrls);
 
             // check if the batch is valid
-            let startingIndex = 31;
+            let startingIndex = 32;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
                 startingIndex = startingIndex + step;
@@ -371,7 +646,7 @@ export class QuestionsService {
             return createdQuestions;
         } catch (error) {
             throw new InternalServerErrorException(
-                'Error creating visual third part questions',
+                'Error creating visual third part questions for TOEIC listening test',
                 error.message,
             );
         }
@@ -433,7 +708,7 @@ export class QuestionsService {
                 this.parseImageUrlsToQuestions(imagesUrls);
 
             // check if the batch is valid
-            let startingIndex = 70;
+            let startingIndex = 71;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
                 startingIndex = startingIndex + step;
@@ -458,6 +733,10 @@ export class QuestionsService {
                             idx === startingIndex
                                 ? image.map((item) => item.url)
                                 : [],
+                        paragraph: null,
+                        content: questions[idx].content,
+                        explanation: null,
+                        points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
                     const choice = await this.choicesRepository.createChoice(

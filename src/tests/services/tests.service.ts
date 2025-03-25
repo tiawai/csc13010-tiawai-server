@@ -69,4 +69,23 @@ export class TestsService {
             );
         }
     }
+
+    async createToeicReadingTest(
+        createTestDto: CreateTestDto,
+        authorId: string,
+    ): Promise<Test> {
+        try {
+            const test = await this.testsRepository.createTest(
+                createTestDto,
+                authorId,
+            );
+
+            return test;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error creating test',
+                error.message,
+            );
+        }
+    }
 }
