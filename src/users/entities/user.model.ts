@@ -53,13 +53,13 @@ export class User extends Model {
 
     @Column({
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     gender: Gender;
 
     @Column({
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     address: string;
 
@@ -99,7 +99,6 @@ export class User extends Model {
     })
     profileImage: string;
 
-    // For student
     @Column({
         type: DataTypes.INTEGER,
         allowNull: false,
