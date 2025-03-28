@@ -1,10 +1,19 @@
 graph LR
-    AppModule-->AuthModule
+    AccessControlModule-->ConfigHostModule
+  AccessControlModule-->ConfigModule
+  AccessControlModule-->MailerCoreModule
+  AccessControlModule-->RedisCoreModule
+  AccessControlModule-->ScheduleModule
+  AccessControlModule-->SequelizeCoreModule
+  AppModule-->AuthModule
+  AppModule-->ChatModule
   AppModule-->ConfigHostModule
   AppModule-->ConfigModule
   AppModule-->MailerCoreModule
   AppModule-->MailerModule
+  AppModule-->PaymentModule
   AppModule-->RedisCoreModule
+  AppModule-->ScheduleModule
   AppModule-->SequelizeCoreModule
   AppModule-->SequelizeModule
   AppModule-->TestsModule
@@ -16,63 +25,112 @@ graph LR
   AuthModule-->PassportModule
   AuthModule-->RedisCoreModule
   AuthModule-->RedisModule
+  AuthModule-->ScheduleModule
   AuthModule-->SequelizeCoreModule
   AuthModule-->UsersModule
+  ChatModule-->AccessControlModule
+  ChatModule-->ConfigHostModule
+  ChatModule-->ConfigModule
+  ChatModule-->MailerCoreModule
+  ChatModule-->RedisCoreModule
+  ChatModule-->ScheduleModule
+  ChatModule-->SequelizeCoreModule
+  ChatModule-->SequelizeModule
+  ChatModule-->VectorStoreModule
   ConfigHostModule-->ConfigModule
   ConfigHostModule-->MailerCoreModule
   ConfigHostModule-->RedisCoreModule
+  ConfigHostModule-->ScheduleModule
   ConfigHostModule-->SequelizeCoreModule
   ConfigModule-->ConfigHostModule
   ConfigModule-->ConfigModule
   ConfigModule-->MailerCoreModule
   ConfigModule-->RedisCoreModule
+  ConfigModule-->ScheduleModule
   ConfigModule-->SequelizeCoreModule
+  DiscoveryModule-->ConfigHostModule
+  DiscoveryModule-->ConfigModule
+  DiscoveryModule-->MailerCoreModule
+  DiscoveryModule-->RedisCoreModule
+  DiscoveryModule-->ScheduleModule
+  DiscoveryModule-->SequelizeCoreModule
   JwtModule-->ConfigHostModule
   JwtModule-->ConfigModule
   JwtModule-->MailerCoreModule
   JwtModule-->RedisCoreModule
+  JwtModule-->ScheduleModule
   JwtModule-->SequelizeCoreModule
   MailerCoreModule-->ConfigHostModule
   MailerCoreModule-->ConfigModule
   MailerCoreModule-->RedisCoreModule
+  MailerCoreModule-->ScheduleModule
   MailerCoreModule-->SequelizeCoreModule
   MailerModule-->ConfigHostModule
   MailerModule-->ConfigModule
   MailerModule-->MailerCoreModule
   MailerModule-->RedisCoreModule
+  MailerModule-->ScheduleModule
   MailerModule-->SequelizeCoreModule
   PassportModule-->ConfigHostModule
   PassportModule-->ConfigModule
   PassportModule-->MailerCoreModule
   PassportModule-->RedisCoreModule
+  PassportModule-->ScheduleModule
   PassportModule-->SequelizeCoreModule
+  PaymentModule-->AccessControlModule
+  PaymentModule-->ConfigHostModule
+  PaymentModule-->ConfigModule
+  PaymentModule-->MailerCoreModule
+  PaymentModule-->RedisCoreModule
+  PaymentModule-->ScheduleModule
+  PaymentModule-->SequelizeCoreModule
+  PaymentModule-->SequelizeModule
+  PaymentModule-->UsersModule
   RedisCoreModule-->ConfigHostModule
   RedisCoreModule-->ConfigModule
   RedisCoreModule-->MailerCoreModule
+  RedisCoreModule-->ScheduleModule
   RedisCoreModule-->SequelizeCoreModule
   RedisModule-->ConfigHostModule
   RedisModule-->ConfigModule
   RedisModule-->MailerCoreModule
   RedisModule-->RedisCoreModule
+  RedisModule-->ScheduleModule
   RedisModule-->SequelizeCoreModule
+  ScheduleModule-->ConfigHostModule
+  ScheduleModule-->ConfigModule
+  ScheduleModule-->DiscoveryModule
+  ScheduleModule-->MailerCoreModule
+  ScheduleModule-->RedisCoreModule
+  ScheduleModule-->SequelizeCoreModule
   SequelizeCoreModule-->ConfigHostModule
   SequelizeCoreModule-->ConfigModule
   SequelizeCoreModule-->MailerCoreModule
   SequelizeCoreModule-->RedisCoreModule
+  SequelizeCoreModule-->ScheduleModule
   SequelizeModule-->ConfigHostModule
   SequelizeModule-->ConfigModule
   SequelizeModule-->MailerCoreModule
   SequelizeModule-->RedisCoreModule
+  SequelizeModule-->ScheduleModule
   SequelizeModule-->SequelizeCoreModule
   TestsModule-->ConfigHostModule
   TestsModule-->ConfigModule
   TestsModule-->MailerCoreModule
   TestsModule-->RedisCoreModule
+  TestsModule-->ScheduleModule
   TestsModule-->SequelizeCoreModule
   TestsModule-->SequelizeModule
   UsersModule-->ConfigHostModule
   UsersModule-->ConfigModule
   UsersModule-->MailerCoreModule
   UsersModule-->RedisCoreModule
+  UsersModule-->ScheduleModule
   UsersModule-->SequelizeCoreModule
   UsersModule-->SequelizeModule
+  VectorStoreModule-->ConfigHostModule
+  VectorStoreModule-->ConfigModule
+  VectorStoreModule-->MailerCoreModule
+  VectorStoreModule-->RedisCoreModule
+  VectorStoreModule-->ScheduleModule
+  VectorStoreModule-->SequelizeCoreModule
