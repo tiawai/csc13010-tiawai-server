@@ -176,8 +176,8 @@ export class UsersRepository {
     async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
         if (refreshToken !== 'null') {
             await this.redisClient.set(
-                `refreshToken:${id}`,
-                refreshToken,
+                `refreshToken:${refreshToken}`,
+                id,
                 'EX',
                 7 * 24 * 60 * 60,
             ); // 7 days expiration
