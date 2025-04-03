@@ -7,8 +7,9 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { UserSignUpDto } from '../auth/dtos/user-signup.dto';
 import { Role } from '../auth/enums/roles.enum';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { Redis } from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
 
 @Injectable()
 export class UsersRepository {
@@ -109,6 +110,10 @@ export class UsersRepository {
                 where: { email },
             });
 
+            if (!project) {
+                return null;
+            }
+
             return project.dataValues as User;
         } catch (error: any) {
             throw new InternalServerErrorException((error as Error).message);
@@ -161,23 +166,13 @@ export class UsersRepository {
             throw new InternalServerErrorException((error as Error).message);
         }
     }
-
-    async deleteEmployee(id: string): Promise<{ message: string }> {
-        const employee = await this.userModel.findByPk(id);
-        if (!employee) {
-            throw new NotFoundException(`Employee with ID ${id} not found`);
-        }
-
-        await employee.destroy();
-        return { message: 'Employee deleted successfully' };
-    }
     */
 
     async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
         if (refreshToken !== 'null') {
             await this.redisClient.set(
-                `refreshToken:${refreshToken}`,
-                id,
+                `refreshToken:${id}`,
+                refreshToken,
                 'EX',
                 7 * 24 * 60 * 60,
             ); // 7 days expiration
@@ -212,12 +207,12 @@ export class UsersRepository {
         }
     }
 
-    async findOneByRefreshToken(refreshToken: string): Promise<User> {
-        const id = await this.redisClient.get(`refreshToken:${refreshToken}`);
-        if (!id) {
+    async findOneByRefreshToken(userId: string): Promise<string> {
+        const token = await this.redisClient.get(`refreshToken:${userId}`);
+        if (!token) {
             throw new NotFoundException('Refresh token not found');
         }
-        return this.findOneById(id);
+        return token;
     }
 
     async deleteByRefreshToken(refreshToken: string): Promise<void> {
@@ -260,11 +255,11 @@ export class UsersRepository {
 
     async updateUserProfile(
         id: string,
-        updateData: Partial<User>,
+        updateProfileDto: Partial<UpdateUserDto>,
     ): Promise<User> {
         try {
             const [updatedCount, updatedUsers] = await this.userModel.update(
-                updateData,
+                updateProfileDto,
                 {
                     where: { id },
                     returning: true,

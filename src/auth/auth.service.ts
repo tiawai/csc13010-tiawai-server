@@ -86,10 +86,30 @@ export class AuthService {
         }
     }
 
-    public async signUp(user: UserSignUpDto): Promise<User> {
+    public async signUp(user: UserSignUpDto): Promise<Partial<User>> {
+        const foundUser = await this.usersRepository.findOneByEmail(user.email);
+        if (foundUser) {
+            throw new BadRequestException('User already exists');
+        }
+
         try {
             const newUser = await this.usersRepository.createUser(user);
-            return newUser;
+            const formattedUser: {
+                id: string;
+                profileImage: string;
+                username: string;
+                email: string;
+                role: Role;
+                balance: number;
+            } = {
+                id: newUser.id,
+                profileImage: newUser.profileImage,
+                username: newUser.username,
+                email: newUser.email,
+                role: newUser.role,
+                balance: newUser.balance,
+            };
+            return formattedUser;
         } catch (error: any) {
             throw new InternalServerErrorException((error as Error).message);
         }
@@ -105,10 +125,17 @@ export class AuthService {
 
     public async getNewTokens(refreshToken: string): Promise<TokensDto> {
         try {
+            const decodedRT = this.jwtService.decode(refreshToken);
+            const id: string = decodedRT['id'];
             const RTRecord =
-                await this.usersRepository.findOneByRefreshToken(refreshToken);
+                await this.usersRepository.findOneByRefreshToken(id);
             if (!RTRecord) {
                 throw new UnauthorizedException('Invalid refresh token');
+            }
+            if (RTRecord !== refreshToken) {
+                throw new UnauthorizedException(
+                    'Your refresh token has been expired. Please log in again',
+                );
             }
 
             const payload = this.jwtService.verify<{
@@ -118,7 +145,15 @@ export class AuthService {
             }>(refreshToken, {
                 secret: this.configService.get('RT_SECRET'),
             });
-            const user = await this.usersRepository.findOneById(payload.id);
+
+            const user = await this.usersRepository.findOneByEmail(
+                payload.email,
+            );
+
+            if (!user) {
+                throw new UnauthorizedException('User not found');
+            }
+
             const payloadAccessToken = {
                 id: payload.id,
                 username: user.username,
