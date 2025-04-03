@@ -8,12 +8,7 @@ import {
     Req,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import {
-    ApiTags,
-    ApiOperation,
-    ApiResponse,
-    ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ATAuthGuard } from '../auth/guards/at-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -27,8 +22,6 @@ interface RequestWithUser extends Request {
         id: string;
     };
 }
-
-@ApiTags('payments')
 @Controller('payments')
 @UseGuards(ATAuthGuard, RolesGuard)
 @ApiBearerAuth()
