@@ -1,18 +1,5 @@
 name: lint
-on:
-    push:
-        branches:
-            - main
-            - dev
-            - 'TIA-[0-9]*/TIA-[0-9]*'
-    pull_request:
-        branches:
-            - main
-            - dev
-            - 'TIA-[0-9]*/TIA-[0-9]*'
-        paths-ignore:
-            - 'README.md'
-            - 'LICENSE'
+on: [push, pull_request]
 jobs:
     lint-prettier:
         runs-on: ubuntu-22.04

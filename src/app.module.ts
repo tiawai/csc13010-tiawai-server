@@ -33,7 +33,7 @@ import { Message } from './chat/message/entities/message.entity';
                     },
                 },
                 defaults: {
-                    from: `"Kafi - POS System" <support@kafi>`, // Sender's email address
+                    from: `"tiawai - Learning English with AI" <support@tiawai.co>`, // Sender's email address
                 },
             }),
             inject: [ConfigService],
