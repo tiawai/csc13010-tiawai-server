@@ -488,6 +488,7 @@ export class TestsController {
         @Request() req: any,
         @Body() createTestDto: CreateTestDto,
     ) {
+        createTestDto.type = TestType.TOEIC_READING;
         const test = await this.testsService.createToeicReadingTest(
             createTestDto,
             req.user.id,

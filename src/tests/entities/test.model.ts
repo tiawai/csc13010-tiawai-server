@@ -37,6 +37,7 @@ export class Test extends Model {
     @Column({
         type: DataTypes.ENUM(
             TestType.TOEIC_LISTENING,
+            TestType.TOEIC_READING,
             TestType.NATIONAL_TEST,
             TestType.ASSIGNMENT,
         ),

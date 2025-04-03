@@ -57,6 +57,7 @@ export class UploadService {
                 );
             }
 
+            // Validate file type
             const allowedMimeTypes = [
                 'audio/mpeg',
                 'audio/wav',
@@ -69,7 +70,8 @@ export class UploadService {
                 );
             }
 
-            const fileKey = `audios/${uuidv4()}-${file.originalname}`;
+            // Create a specific folder for audio files
+            const fileKey = `audio/${uuidv4()}-${file.originalname}`;
 
             const params: S3.PutObjectRequest = {
                 Bucket: bucket,
@@ -77,6 +79,7 @@ export class UploadService {
                 Body: file.buffer,
                 ContentType: file.mimetype,
                 ACL: 'public-read',
+                // Add audio-specific metadata
                 Metadata: {
                     'Content-Type': file.mimetype,
                     'Original-Filename': file.originalname,
