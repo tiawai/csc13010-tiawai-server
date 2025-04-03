@@ -152,7 +152,7 @@ export class AuthService {
 
             await this.mailerService.sendMail({
                 to: email,
-                subject: '[Kafi - POS System] Reset Password OTP',
+                subject: '[tiawai - Support System] Reset Password OTP',
                 text: `Please do not reply this message. \n Your OTP is: ${otp}`,
             });
 
