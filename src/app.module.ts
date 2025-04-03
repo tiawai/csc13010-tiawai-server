@@ -9,6 +9,12 @@ import { User } from './users/entities/user.model';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './auth/auth.module';
 import { TestsModule } from './tests/tests.module';
+import { PaymentModule } from './payment/payment.module';
+import { Payment } from './payment/entities/payment.model';
+import { ChatModule } from './chat/chat.module';
+import { ChatSession } from './chat/session/entities/chat-session.entity';
+import { Message } from './chat/message/entities/message.entity';
+
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -49,7 +55,7 @@ import { TestsModule } from './tests/tests.module';
                     dialectModule: pg,
                     autoLoadModels: true,
                     synchronize: true,
-                    models: [User],
+                    models: [User, Payment, ChatSession, Message],
                     dialectOptions: isDevelopment
                         ? { ssl: { require: true, rejectUnauthorized: false } }
                         : { ssl: false },
@@ -60,6 +66,8 @@ import { TestsModule } from './tests/tests.module';
         AuthModule,
         UsersModule,
         TestsModule,
+        PaymentModule,
+        ChatModule,
     ],
     controllers: [AppController],
     providers: [AppService],
