@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { OpenAIEmbeddings } from '@langchain/openai';
-import {
-    DistanceStrategy,
-    PGVectorStore,
-} from '@langchain/community/vectorstores/pgvector';
+import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
 import { Document } from '@langchain/core/documents';
 import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
@@ -38,9 +35,7 @@ export class VectorStoreService {
                 contentColumnName: 'content',
                 metadataColumnName: 'metadata',
             },
-            distanceStrategy: this.configService.get(
-                'DISTANCE_STRATEGY',
-            ) as DistanceStrategy,
+            distanceStrategy: this.configService.get('DISTANCE_STRATEGY'),
         };
 
         this.pgvectorStore = new PGVectorStore(
@@ -78,7 +73,7 @@ export class VectorStoreService {
         await this.pgvectorStore.addDocuments(documents);
     }
 
-    async similaritySearch(query: string, limit: number): Promise<any> {
+    similaritySearch(query: string, limit: number): any {
         if (!this.pgvectorStore) {
             throw new Error('Vector store not initialized');
         }

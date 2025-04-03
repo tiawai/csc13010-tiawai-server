@@ -2,8 +2,6 @@ import {
     Injectable,
     NotFoundException,
     BadRequestException,
-    OnModuleInit,
-    Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {

@@ -67,18 +67,14 @@ export class ChatSessionService {
     }
 
     async disable(id: string): Promise<ChatSessionResponseDto> {
-        try {
-            const session = await this.chatSessionModel.findByPk(id);
+        const session = await this.chatSessionModel.findByPk(id);
 
-            if (!session) {
-                throw new NotFoundException('Chat session not found');
-            }
-            session.isActive = false;
-            await session.save();
-            return this.toChatSessionResponseDto(session);
-        } catch (error) {
-            throw error;
+        if (!session) {
+            throw new NotFoundException('Chat session not found');
         }
+        session.isActive = false;
+        await session.save();
+        return this.toChatSessionResponseDto(session);
     }
 
     private toChatSessionResponseDto(

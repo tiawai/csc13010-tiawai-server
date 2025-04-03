@@ -195,7 +195,7 @@ export class MessageService {
 
         const conversationalRagChain = new RunnableWithMessageHistory({
             runnable: ragChain,
-            getMessageHistory: async () => chatHistory,
+            getMessageHistory: () => chatHistory,
             inputMessagesKey: 'input',
             historyMessagesKey: 'chat_history',
             outputMessagesKey: 'answer',
