@@ -9,6 +9,7 @@ graph LR
   AppModule-->ChatModule
   AppModule-->ConfigHostModule
   AppModule-->ConfigModule
+  AppModule-->FlashcardModule
   AppModule-->MailerCoreModule
   AppModule-->MailerModule
   AppModule-->PaymentModule
@@ -54,6 +55,13 @@ graph LR
   DiscoveryModule-->RedisCoreModule
   DiscoveryModule-->ScheduleModule
   DiscoveryModule-->SequelizeCoreModule
+  FlashcardModule-->ConfigHostModule
+  FlashcardModule-->ConfigModule
+  FlashcardModule-->MailerCoreModule
+  FlashcardModule-->RedisCoreModule
+  FlashcardModule-->ScheduleModule
+  FlashcardModule-->SequelizeCoreModule
+  FlashcardModule-->SequelizeModule
   JwtModule-->ConfigHostModule
   JwtModule-->ConfigModule
   JwtModule-->MailerCoreModule
