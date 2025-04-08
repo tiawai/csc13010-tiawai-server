@@ -75,10 +75,10 @@ export class PaymentController {
         //  return { success: true };
     }
 
-    @Get(':orderId')
+    @Get(':id')
     @ApiOperation({ summary: 'Get payment by orderId' })
     @ApiResponse({ status: 200, description: 'Payment retrieved successfully' })
-    async getPayment(@Param('orderId') orderId: string) {
+    async getPayment(@Param('id') orderId: string) {
         return this.paymentService.getPayment(orderId);
     }
 }

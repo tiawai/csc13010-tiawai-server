@@ -14,8 +14,8 @@ import { Payment } from './payment/entities/payment.model';
 import { ChatModule } from './chat/chat.module';
 import { ChatSession } from './chat/session/entities/chat-session.entity';
 import { Message } from './chat/message/entities/message.entity';
-import { FlashcardModule } from './flashcard/flashcard.module';
-import { FlashcardEntity } from './flashcard/entities/flashcard.entity';
+import { FlashcardModule } from './flashcards/flashcard.module';
+import { FlashcardEntity } from './flashcards/entities/flashcard.entity';
 
 @Module({
     imports: [

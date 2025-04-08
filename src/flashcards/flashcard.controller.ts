@@ -17,8 +17,8 @@ import {
     ApiParam,
 } from '@nestjs/swagger';
 import { FlashcardService } from './flashcard.service';
-import { CreateFlashcardDto } from './dto/create-flashcard.dto';
-import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
+import { CreateFlashcardDto } from './dtos/create-flashcard.dto';
+import { UpdateFlashcardDto } from './dtos/update-flashcard.dto';
 import { FlashcardEntity } from './entities/flashcard.entity';
 import { ATAuthGuard } from '../auth/guards/at-auth.guard';
 import { Role } from 'src/auth/enums/roles.enum';

@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FlashcardEntity } from './entities/flashcard.entity';
-import { CreateFlashcardDto } from './dto/create-flashcard.dto';
-import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
+import { CreateFlashcardDto } from './dtos/create-flashcard.dto';
+import { UpdateFlashcardDto } from './dtos/update-flashcard.dto';
 
 @Injectable()
 export class FlashcardRepository {
