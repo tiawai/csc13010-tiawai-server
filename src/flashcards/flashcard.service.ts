@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+    ForbiddenException,
+} from '@nestjs/common';
 import { FlashcardRepository } from './flashcard.repository';
 import { Card, FlashcardEntity } from './entities/flashcard.entity';
 import { CreateFlashcardDto } from './dtos/create-flashcard.dto';
@@ -32,8 +37,18 @@ export class FlashcardService {
         return this.flashcardRepository.findAll(userId);
     }
 
-    findOne(id: string, userId: string): Promise<FlashcardEntity> {
-        return this.flashcardRepository.findOne(id, userId);
+    async findOne(id: string, userId: string): Promise<FlashcardEntity> {
+        const flashcard = await this.flashcardRepository.findOne(id, userId);
+        if (!flashcard) {
+            throw new NotFoundException(`Flashcard with ID ${id} not found`);
+        }
+
+        if (flashcard.userId !== userId) {
+            throw new ForbiddenException(
+                'You are not authorized to access this flashcard',
+            );
+        }
+        return flashcard;
     }
 
     update(

@@ -36,7 +36,7 @@ export class FlashcardController {
     constructor(private readonly flashcardService: FlashcardService) {}
 
     @ApiOperation({
-        summary: 'Extract flashcards from a text [USER]',
+        summary: 'Extract flashcards from a text [STUDENT, TEACHER]',
     })
     @ApiBody({
         type: ExtractFlashcardDto,
@@ -56,7 +56,9 @@ export class FlashcardController {
     }
 
     @Post()
-    @ApiOperation({ summary: 'Create a new flashcard batch' })
+    @ApiOperation({
+        summary: 'Create a new flashcard batch [STUDENT, TEACHER]',
+    })
     @ApiResponse({
         status: 201,
         description: 'The flashcard batch has been successfully created.',
@@ -67,7 +69,10 @@ export class FlashcardController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Get all flashcard batches for the current user' })
+    @ApiOperation({
+        summary:
+            'Get all flashcard batches for the current user [STUDENT, TEACHER]',
+    })
     @ApiResponse({
         status: 200,
         description: 'Returns all flashcard batches for the current user',
@@ -78,7 +83,9 @@ export class FlashcardController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get a specific flashcard batch by ID' })
+    @ApiOperation({
+        summary: 'Get a specific flashcard batch by ID [STUDENT, TEACHER]',
+    })
     @ApiParam({ name: 'id', description: 'Flashcard batch ID' })
     @ApiResponse({
         status: 200,
@@ -94,7 +101,7 @@ export class FlashcardController {
     }
 
     @Patch(':id')
-    @ApiOperation({ summary: 'Update a flashcard batch' })
+    @ApiOperation({ summary: 'Update a flashcard batch [STUDENT, TEACHER]' })
     @ApiParam({ name: 'id', description: 'Flashcard batch ID' })
     @ApiResponse({
         status: 200,
@@ -118,7 +125,7 @@ export class FlashcardController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Delete a flashcard batch' })
+    @ApiOperation({ summary: 'Delete a flashcard batch [STUDENT, TEACHER]' })
     @ApiParam({ name: 'id', description: 'Flashcard batch ID' })
     @ApiResponse({
         status: 200,

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FlashcardEntity } from './entities/flashcard.entity';
 import { CreateFlashcardDto } from './dtos/create-flashcard.dto';
@@ -32,11 +32,6 @@ export class FlashcardRepository {
         const flashcard = await this.flashcardModel.findOne({
             where: { id, userId },
         });
-
-        if (!flashcard) {
-            throw new NotFoundException(`Flashcard with ID ${id} not found`);
-        }
-
         return flashcard;
     }
 

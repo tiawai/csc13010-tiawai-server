@@ -19,7 +19,7 @@ export class Classroom extends Model {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-            model: 'users',
+            model: 'accounts',
             key: 'id',
         },
         onDelete: 'CASCADE',
@@ -54,6 +54,13 @@ export class Classroom extends Model {
         defaultValue: process.env.DEFAULT_CLASSROOM_IMG,
     })
     backgroundImage: string;
+
+    @Column({
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+    })
+    maxStudent: number;
 
     @Column({
         type: DataTypes.INTEGER,

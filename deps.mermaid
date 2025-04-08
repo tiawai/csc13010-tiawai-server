@@ -7,6 +7,7 @@ graph LR
   AccessControlModule-->SequelizeCoreModule
   AppModule-->AuthModule
   AppModule-->ChatModule
+  AppModule-->ClassroomModule
   AppModule-->ConfigHostModule
   AppModule-->ConfigModule
   AppModule-->FlashcardModule
@@ -38,6 +39,15 @@ graph LR
   ChatModule-->SequelizeCoreModule
   ChatModule-->SequelizeModule
   ChatModule-->VectorStoreModule
+  ClassroomModule-->ConfigHostModule
+  ClassroomModule-->ConfigModule
+  ClassroomModule-->MailerCoreModule
+  ClassroomModule-->MulterModule
+  ClassroomModule-->RedisCoreModule
+  ClassroomModule-->ScheduleModule
+  ClassroomModule-->SequelizeCoreModule
+  ClassroomModule-->SequelizeModule
+  ClassroomModule-->UploadModule
   ConfigHostModule-->ConfigModule
   ConfigHostModule-->MailerCoreModule
   ConfigHostModule-->RedisCoreModule
@@ -79,6 +89,12 @@ graph LR
   MailerModule-->RedisCoreModule
   MailerModule-->ScheduleModule
   MailerModule-->SequelizeCoreModule
+  MulterModule-->ConfigHostModule
+  MulterModule-->ConfigModule
+  MulterModule-->MailerCoreModule
+  MulterModule-->RedisCoreModule
+  MulterModule-->ScheduleModule
+  MulterModule-->SequelizeCoreModule
   PassportModule-->ConfigHostModule
   PassportModule-->ConfigModule
   PassportModule-->MailerCoreModule
@@ -129,6 +145,13 @@ graph LR
   TestsModule-->ScheduleModule
   TestsModule-->SequelizeCoreModule
   TestsModule-->SequelizeModule
+  UploadModule-->ConfigHostModule
+  UploadModule-->ConfigModule
+  UploadModule-->MailerCoreModule
+  UploadModule-->MulterModule
+  UploadModule-->RedisCoreModule
+  UploadModule-->ScheduleModule
+  UploadModule-->SequelizeCoreModule
   UsersModule-->ConfigHostModule
   UsersModule-->ConfigModule
   UsersModule-->MailerCoreModule
