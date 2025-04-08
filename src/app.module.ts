@@ -16,6 +16,9 @@ import { ChatSession } from './chat/session/entities/chat-session.entity';
 import { Message } from './chat/message/entities/message.entity';
 import { FlashcardModule } from './flashcards/flashcard.module';
 import { FlashcardEntity } from './flashcards/entities/flashcard.entity';
+import { ClassroomModule } from './classrooms/classroom.module';
+import { Classroom } from './classrooms/entities/classroom.model';
+import { ClassroomRating } from './classrooms/entities/classroom-rating.model';
 
 @Module({
     imports: [
@@ -63,6 +66,8 @@ import { FlashcardEntity } from './flashcards/entities/flashcard.entity';
                         ChatSession,
                         Message,
                         FlashcardEntity,
+                        Classroom,
+                        ClassroomRating,
                     ],
                     dialectOptions: isDevelopment
                         ? { ssl: { require: true, rejectUnauthorized: false } }
@@ -77,6 +82,7 @@ import { FlashcardEntity } from './flashcards/entities/flashcard.entity';
         PaymentModule,
         ChatModule,
         FlashcardModule,
+        ClassroomModule,
     ],
     controllers: [AppController],
     providers: [AppService],
