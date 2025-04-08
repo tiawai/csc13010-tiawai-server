@@ -14,6 +14,8 @@ import { Payment } from './payment/entities/payment.model';
 import { ChatModule } from './chat/chat.module';
 import { ChatSession } from './chat/session/entities/chat-session.entity';
 import { Message } from './chat/message/entities/message.entity';
+import { FlashcardModule } from './flashcards/flashcard.module';
+import { FlashcardEntity } from './flashcards/entities/flashcard.entity';
 
 @Module({
     imports: [
@@ -55,7 +57,13 @@ import { Message } from './chat/message/entities/message.entity';
                     dialectModule: pg,
                     autoLoadModels: true,
                     synchronize: true,
-                    models: [User, Payment, ChatSession, Message],
+                    models: [
+                        User,
+                        Payment,
+                        ChatSession,
+                        Message,
+                        FlashcardEntity,
+                    ],
                     dialectOptions: isDevelopment
                         ? { ssl: { require: true, rejectUnauthorized: false } }
                         : { ssl: false },
@@ -68,6 +76,7 @@ import { Message } from './chat/message/entities/message.entity';
         TestsModule,
         PaymentModule,
         ChatModule,
+        FlashcardModule,
     ],
     controllers: [AppController],
     providers: [AppService],

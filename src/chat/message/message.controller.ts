@@ -56,8 +56,8 @@ export class MessageController {
         summary: 'Get bot response',
     })
     @ApiResponse({ type: MessageResponseDto })
-    @Post(':sessionId')
-    async botResponse(@Param('sessionId') sessionId: string) {
+    @Post(':id')
+    async botResponse(@Param('id') sessionId: string) {
         return this.messageService.getResponse(sessionId, TEMPLATES);
     }
 
@@ -69,9 +69,9 @@ export class MessageController {
         summary: 'Retrieve messages for a specific chat session by session ID',
     })
     @ApiResponse({ type: [MessageResponseDto] })
-    @Get(':sessionId')
+    @Get(':id')
     async findBySessionId(
-        @Param('sessionId') sessionId: string,
+        @Param('id') sessionId: string,
     ): Promise<MessageResponseDto[]> {
         return this.messageService.findBySessionId(sessionId);
     }
