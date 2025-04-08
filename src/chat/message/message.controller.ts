@@ -21,7 +21,7 @@ import { ATAuthGuard } from '../../auth/guards/at-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/enums/roles.enum';
-import { TEMPLATES } from '../template.constants.js';
+import { TEMPLATES } from './prompts/chat.prompt';
 
 @ApiTags('Messages')
 @Controller('messages')
