@@ -8,13 +8,15 @@ import {
     Delete,
     UseGuards,
     Request,
+    HttpCode,
 } from '@nestjs/common';
 import {
     ApiTags,
     ApiOperation,
     ApiResponse,
-    ApiBearerAuth,
+    ApiBody,
     ApiParam,
+    ApiBearerAuth,
 } from '@nestjs/swagger';
 import { FlashcardService } from './flashcard.service';
 import { CreateFlashcardDto } from './dtos/create-flashcard.dto';
@@ -23,6 +25,7 @@ import { FlashcardEntity } from './entities/flashcard.entity';
 import { ATAuthGuard } from '../auth/guards/at-auth.guard';
 import { Role } from 'src/auth/enums/roles.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { ExtractFlashcardDto } from './dtos/extract-flashcard.dto';
 
 @ApiTags('Flashcards')
 @Controller('flashcards')
@@ -31,6 +34,26 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 @Roles(Role.STUDENT, Role.TEACHER)
 export class FlashcardController {
     constructor(private readonly flashcardService: FlashcardService) {}
+
+    @ApiOperation({
+        summary: 'Extract flashcards from a text [USER]',
+    })
+    @ApiBody({
+        type: ExtractFlashcardDto,
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Extract flashcards successfully',
+        type: FlashcardEntity,
+    })
+    @HttpCode(200)
+    @Post('extract')
+    async extract(
+        @Body() extractFlashcardDto: ExtractFlashcardDto,
+        @Request() req: any,
+    ) {
+        return this.flashcardService.extract(extractFlashcardDto, req.user);
+    }
 
     @Post()
     @ApiOperation({ summary: 'Create a new flashcard batch' })
