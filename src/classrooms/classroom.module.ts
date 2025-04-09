@@ -11,6 +11,9 @@ import { UploadModule } from '../uploader/upload.module';
 import { ClassroomRepository } from './repositories/classroom.repository';
 import { ClassroomRatingRepository } from './repositories/classroom-rating.repository';
 import { AccessControlService } from '../ac/ac.service';
+import { LessonController } from './controllers/lesson.controller';
+import { LessonService } from './services/lesson.service';
+import { LessonRepository } from './repositories/lesson.repository';
 
 @Module({
     imports: [
@@ -23,13 +26,15 @@ import { AccessControlService } from '../ac/ac.service';
         }),
         UploadModule,
     ],
-    controllers: [ClassroomController],
+    controllers: [ClassroomController, LessonController],
     providers: [
         ClassroomService,
         ClassroomRepository,
         ClassroomRatingRepository,
+        LessonService,
+        LessonRepository,
         AccessControlService,
     ],
-    exports: [ClassroomService],
+    exports: [ClassroomService, LessonService],
 })
 export class ClassroomModule {}
