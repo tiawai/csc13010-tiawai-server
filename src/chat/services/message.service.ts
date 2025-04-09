@@ -1,10 +1,10 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Message } from './entities/message.entity';
-import { CreateMessageDto } from './dtos/create-message.dto';
-import { MessageResponseDto } from './dtos/message-response.dto';
+import { Message } from '../entities/message.entity';
+import { CreateMessageDto } from '../dtos/create-message.dto';
+import { MessageResponseDto } from '../dtos/message-response.dto';
 import { ConfigService } from '@nestjs/config';
-import { ChatSession } from '../session/entities/chat-session.entity';
+import { ChatSession } from '../entities/chat-session.entity';
 import { VectorStoreService } from '../../vector-store/vector-store.service';
 import {
     ChatPromptTemplate,
@@ -17,7 +17,7 @@ import { ChatMessageHistory } from 'langchain/memory';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createRetrievalChain } from 'langchain/chains/retrieval';
-import { CreateChatSessionDto } from '../session/dtos/create-chat-session.dto';
+import { CreateChatSessionDto } from '../dtos/create-chat-session.dto';
 
 @Injectable()
 export class MessageService {

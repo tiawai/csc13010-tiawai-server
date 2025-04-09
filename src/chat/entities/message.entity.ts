@@ -7,7 +7,7 @@ import {
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { ApiProperty } from '@nestjs/swagger';
-import { ChatSession } from '../../session/entities/chat-session.entity.js';
+import { ChatSession } from '../entities/chat-session.entity';
 
 @Table({ tableName: 'messages' })
 export class Message extends Model<Message> {

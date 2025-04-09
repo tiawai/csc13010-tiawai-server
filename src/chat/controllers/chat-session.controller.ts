@@ -14,9 +14,9 @@ import {
     ApiResponse,
     ApiBearerAuth,
 } from '@nestjs/swagger';
-import { ChatSessionService } from './chat-session.service';
-import { CreateChatSessionDto } from './dtos/create-chat-session.dto';
-import { ChatSessionResponseDto } from './dtos/chat-session-response.dto';
+import { ChatSessionService } from '../services/chat-session.service';
+import { CreateChatSessionDto } from '../dtos/create-chat-session.dto';
+import { ChatSessionResponseDto } from '../dtos/chat-session-response.dto';
 import { ATAuthGuard } from '../../auth/guards/at-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';

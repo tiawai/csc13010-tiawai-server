@@ -14,14 +14,14 @@ import {
     ApiResponse,
     ApiBearerAuth,
 } from '@nestjs/swagger';
-import { MessageResponseDto } from './dtos/message-response.dto.js';
-import { CreateMessageDto } from './dtos/create-message.dto.js';
-import { MessageService } from './message.service.js';
+import { MessageResponseDto } from '../dtos/message-response.dto';
+import { CreateMessageDto } from '../dtos/create-message.dto';
+import { MessageService } from '../services/message.service';
 import { ATAuthGuard } from '../../auth/guards/at-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/enums/roles.enum';
-import { TEMPLATES } from './prompts/chat.prompt';
+import { TEMPLATES } from '../prompts/chat.prompt';
 
 @ApiTags('Messages')
 @Controller('messages')

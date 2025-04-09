@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ClassroomController } from './classroom.controller';
-import { ClassroomService } from './classroom.service';
+import { ClassroomController } from './controllers/classroom.controller';
+import { ClassroomService } from './services/classroom.service';
 import { Classroom } from './entities/classroom.model';
 import { ClassroomRating } from './entities/classroom-rating.model';
 import { Lesson } from './entities/lesson.model';
@@ -10,7 +10,7 @@ import { memoryStorage } from 'multer';
 import { UploadModule } from '../uploader/upload.module';
 import { ClassroomRepository } from './repositories/classroom.repository';
 import { ClassroomRatingRepository } from './repositories/classroom-rating.repository';
-import { AccessControlService } from 'src/ac/ac.service';
+import { AccessControlService } from '../ac/ac.service';
 
 @Module({
     imports: [
