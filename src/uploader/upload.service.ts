@@ -157,4 +157,68 @@ export class UploadService {
             throw new InternalServerErrorException(error.message || error.code);
         }
     }
+
+    async uploadLessonFiles(
+        files: Multer.File[],
+        lessonId?: string,
+    ): Promise<string[]> {
+        try {
+            const bucket = this.configService.get<string>('DO_SPACES_BUCKET');
+            if (!bucket) {
+                throw new InternalServerErrorException(
+                    'Bucket name is not configured',
+                );
+            }
+
+            // Validate file types
+            const allowedMimeTypes = [
+                'application/pdf',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            ];
+            const invalidFiles = files.filter(
+                (file) => !allowedMimeTypes.includes(file.mimetype),
+            );
+
+            if (invalidFiles.length > 0) {
+                throw new BadRequestException(
+                    'Invalid file type. Only PDF and PPTX files are allowed.',
+                );
+            }
+
+            // Upload all files
+            const uploadPromises = files.map(async (file) => {
+                // Create a specific path for lesson files
+                const filePrefix = lessonId ? `${lessonId}-` : '';
+                const fileKey = `lessons/${filePrefix}${uuidv4()}-${file.originalname}`;
+
+                const params: S3.PutObjectRequest = {
+                    Bucket: bucket,
+                    Key: fileKey,
+                    Body: file.buffer,
+                    ContentType: file.mimetype,
+                    ACL: 'public-read',
+                    Metadata: {
+                        'Content-Type': file.mimetype,
+                        'Original-Filename': file.originalname,
+                        'Lesson-ID': lessonId || 'new',
+                        'File-Type': file.mimetype.includes('pdf')
+                            ? 'pdf'
+                            : 'pptx',
+                    },
+                };
+
+                await this.s3.upload(params).promise();
+                return `https://${bucket}.${this.configService.get<string>('DO_SPACES_ENDPOINT').replace('https://', '')}/${fileKey}`;
+            });
+
+            // Wait for all uploads to complete
+            const uploadedUrls = await Promise.all(uploadPromises);
+            return uploadedUrls;
+        } catch (error: any) {
+            if (error instanceof BadRequestException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(error.message || error.code);
+        }
+    }
 }

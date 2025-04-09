@@ -22,15 +22,15 @@ import {
     ApiBody,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ClassroomService } from './classroom.service';
-import { CreateClassroomDto } from './dtos/create-classroom.dto';
-import { CreateClassroomRatingDto } from './dtos/create-classroom-rating.dto';
-import { Classroom } from './entities/classroom.model';
-import { ATAuthGuard } from '../auth/guards/at-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/enums/roles.enum';
-import { UploadService } from '../uploader/upload.service';
+import { ClassroomService } from '../services/classroom.service';
+import { CreateClassroomDto } from '../dtos/create-classroom.dto';
+import { CreateClassroomRatingDto } from '../dtos/create-classroom-rating.dto';
+import { Classroom } from '../entities/classroom.model';
+import { ATAuthGuard } from '../../auth/guards/at-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Role } from '../../auth/enums/roles.enum';
+import { UploadService } from '../../uploader/upload.service';
 
 @ApiTags('Classrooms')
 @Controller('classrooms')

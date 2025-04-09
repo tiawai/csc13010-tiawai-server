@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ChatSession } from './entities/chat-session.entity.js';
-import { CreateChatSessionDto } from './dtos/create-chat-session.dto.js';
-import { ChatSessionResponseDto } from './dtos/chat-session-response.dto.js';
-import { Message } from '../message/entities/message.entity.js';
+import { ChatSession } from '../entities/chat-session.entity';
+import { CreateChatSessionDto } from '../dtos/create-chat-session.dto';
+import { ChatSessionResponseDto } from '../dtos/chat-session-response.dto';
+import { Message } from '../entities/message.entity';
 import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()

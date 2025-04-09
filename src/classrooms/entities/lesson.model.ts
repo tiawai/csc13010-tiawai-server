@@ -34,8 +34,15 @@ export class Lesson extends Model {
     title: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     })
     content: string;
+
+    @Column({
+        type: DataTypes.JSONB,
+        allowNull: true,
+        defaultValue: [],
+    })
+    attachments: string[];
 }

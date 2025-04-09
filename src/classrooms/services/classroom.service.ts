@@ -3,12 +3,12 @@ import {
     BadRequestException,
     NotFoundException,
 } from '@nestjs/common';
-import { Classroom } from './entities/classroom.model';
-import { CreateClassroomDto } from './dtos/create-classroom.dto';
-import { CreateClassroomRatingDto } from './dtos/create-classroom-rating.dto';
+import { Classroom } from '../entities/classroom.model';
+import { CreateClassroomDto } from '../dtos/create-classroom.dto';
+import { CreateClassroomRatingDto } from '../dtos/create-classroom-rating.dto';
 import { Sequelize } from 'sequelize-typescript';
-import { ClassroomRepository } from './repositories/classroom.repository';
-import { ClassroomRatingRepository } from './repositories/classroom-rating.repository';
+import { ClassroomRepository } from '../repositories/classroom.repository';
+import { ClassroomRatingRepository } from '../repositories/classroom-rating.repository';
 
 @Injectable()
 export class ClassroomService {
