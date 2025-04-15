@@ -349,13 +349,13 @@ export class QuestionsService {
     ): Promise<Question[]> {
         try {
             const createdQuestions: Question[] = [];
-
+            const offset = 30;
             for (let i = 30; i < 46; ++i) {
                 const question = {
-                    ...questions[i],
+                    ...questions[i - offset],
                     images: [],
                     paragraph: null,
-                    content: questions[i].content,
+                    content: questions[i - offset].content,
                     explanation: null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
@@ -372,7 +372,7 @@ export class QuestionsService {
 
                 const choice = await this.choicesRepository.createChoice(
                     questionId,
-                    questions[i].choices,
+                    questions[i - offset].choices,
                 );
 
                 await this.questionsRepository.updateChoice(
@@ -398,10 +398,10 @@ export class QuestionsService {
     ): Promise<Question[]> {
         try {
             const createdQuestions: Question[] = [];
-
+            const offset = 6;
             for (let i = 6; i < 31; i++) {
                 const question = {
-                    ...questions[i],
+                    ...questions[i - offset],
                     paragraph: null,
                     content: null,
                     explanation: null,
@@ -452,13 +452,13 @@ export class QuestionsService {
     ): Promise<Question[]> {
         try {
             const createdQuestions: Question[] = [];
-
+            const offset = 46;
             for (let i = 46; i < 100; i++) {
                 const question = {
-                    ...questions[i],
+                    ...questions[i - offset],
                     images: [],
                     paragraph: null,
-                    content: questions[i].content,
+                    content: questions[i - offset].content,
                     explanation: null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
@@ -475,7 +475,7 @@ export class QuestionsService {
 
                 const choice = await this.choicesRepository.createChoice(
                     questionId,
-                    questions[i].choices,
+                    questions[i - offset].choices,
                 );
 
                 await this.questionsRepository.updateChoice(
@@ -517,6 +517,7 @@ export class QuestionsService {
 
             const createdQuestions: Question[] = [];
             startingIndex = 46;
+            const offset = 46;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
                 const image = urls.get(startingIndex + 1);
@@ -526,13 +527,13 @@ export class QuestionsService {
                     idx++
                 ) {
                     const question = {
-                        ...questions[idx],
+                        ...questions[idx - offset],
                         images:
                             idx === startingIndex
                                 ? image.map((item) => item.url)
                                 : [],
                         paragraph: null,
-                        content: questions[idx].content,
+                        content: questions[idx - offset].content,
                         explanation: null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
@@ -548,7 +549,7 @@ export class QuestionsService {
 
                     const choice = await this.choicesRepository.createChoice(
                         questionId,
-                        questions[idx].choices,
+                        questions[idx - offset].choices,
                     );
 
                     await this.questionsRepository.updateChoice(
@@ -576,13 +577,13 @@ export class QuestionsService {
     ): Promise<Question[]> {
         try {
             const createdQuestions: Question[] = [];
-
+            const offset = 31;
             for (let i = 31; i < 70; i++) {
                 const question = {
-                    ...questions[i],
+                    ...questions[i - offset],
                     paragraph: null,
                     images: [],
-                    content: questions[i].content,
+                    content: questions[i - offset].content,
                     explanation: null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
@@ -599,7 +600,7 @@ export class QuestionsService {
 
                 const choice = await this.choicesRepository.createChoice(
                     questionId,
-                    questions[i].choices,
+                    questions[i - offset].choices,
                 );
 
                 await this.questionsRepository.updateChoice(
@@ -642,6 +643,7 @@ export class QuestionsService {
 
             const createdQuestions: Question[] = [];
             startingIndex = 31;
+            const offset = 31;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
                 const image = urls.get(startingIndex + 1);
@@ -651,13 +653,13 @@ export class QuestionsService {
                     idx++
                 ) {
                     const question = {
-                        ...questions[idx],
+                        ...questions[idx - offset],
                         images:
                             idx === startingIndex
                                 ? image.map((item) => item.url)
                                 : [],
                         paragraph: null,
-                        content: questions[idx].content,
+                        content: questions[idx - offset].content,
                         explanation: null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
@@ -674,7 +676,7 @@ export class QuestionsService {
 
                     const choice = await this.choicesRepository.createChoice(
                         questionId,
-                        questions[idx].choices,
+                        questions[idx - offset].choices,
                     );
 
                     await this.questionsRepository.updateChoice(
@@ -702,12 +704,12 @@ export class QuestionsService {
     ): Promise<Question[]> {
         try {
             const createdQuestions: Question[] = [];
-
+            const offset = 70;
             for (let i = 70; i < 100; i++) {
                 const question = {
-                    ...questions[i],
+                    ...questions[i - offset],
                     paragraph: null,
-                    content: questions[i].content,
+                    content: questions[i - offset].content,
                     explanation: null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
@@ -725,7 +727,7 @@ export class QuestionsService {
 
                 const choice = await this.choicesRepository.createChoice(
                     questionId,
-                    questions[i].choices,
+                    questions[i - offset].choices,
                 );
 
                 await this.questionsRepository.updateChoice(
@@ -767,6 +769,7 @@ export class QuestionsService {
 
             const createdQuestions: Question[] = [];
             startingIndex = 70;
+            const offset = 70;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
                 const image = urls.get(startingIndex + 1);
@@ -776,13 +779,13 @@ export class QuestionsService {
                     idx++
                 ) {
                     const question = {
-                        ...questions[idx],
+                        ...questions[idx - offset],
                         images:
                             idx === startingIndex
                                 ? image.map((item) => item.url)
                                 : [],
                         paragraph: null,
-                        content: questions[idx].content,
+                        content: questions[idx - offset].content,
                         explanation: null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
@@ -799,7 +802,7 @@ export class QuestionsService {
 
                     const choice = await this.choicesRepository.createChoice(
                         questionId,
-                        questions[idx].choices,
+                        questions[idx - offset].choices,
                     );
 
                     await this.questionsRepository.updateChoice(
