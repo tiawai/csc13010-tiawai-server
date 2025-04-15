@@ -95,7 +95,6 @@ export class TestsController {
         @Param('id') id: string,
         @Body() body: AnswerSheetDto,
     ) {
-        console.log(body);
         return this.testsService.submitTest(id, req.user.id, body);
     }
 

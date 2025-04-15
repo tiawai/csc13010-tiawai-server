@@ -45,9 +45,9 @@ export class TestsService {
         const questions =
             await this.questionsService.getQuestionsByTestId(testId);
 
-        let score = 0;
-        let correctAnswers = 0;
-        let incorrectAnswers = 0;
+        let score: number = 0;
+        let correctAnswers: number = 0;
+        let incorrectAnswers: number = 0;
         for (const answer of answers) {
             const question = questions.find(
                 (question) => question.questionOrder === answer.questionOrder,
@@ -57,7 +57,7 @@ export class TestsService {
             }
 
             if (question.correctAnswer === answer.answer) {
-                score = score + question.points;
+                score = score + Number(question.points);
                 correctAnswers = correctAnswers + 1;
             } else {
                 incorrectAnswers = incorrectAnswers + 1;
