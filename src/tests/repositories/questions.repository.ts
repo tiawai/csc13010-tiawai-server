@@ -42,4 +42,31 @@ export class QuestionsRepository {
             throw new InternalServerErrorException((error as Error).message);
         }
     }
+
+    async updateChoice(
+        questionId: string,
+        choiceId: string,
+    ): Promise<Question> {
+        try {
+            await this.questionModel.update(
+                { choices: choiceId },
+                {
+                    where: { id: questionId },
+                },
+            );
+
+            const updatedQuestion =
+                await this.questionModel.findByPk(questionId);
+
+            if (!updatedQuestion) {
+                throw new InternalServerErrorException(
+                    'Error occurs when retrieving updated question',
+                );
+            }
+
+            return updatedQuestion.dataValues as Question;
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
 }

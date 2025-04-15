@@ -187,20 +187,25 @@ export class QuestionsService {
                     C: '',
                     D: '',
                 };
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    emptyChoice,
-                );
 
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
 
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    emptyChoice,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
                 createdQuestions.push(createdQuestion);
             }
 
@@ -231,20 +236,25 @@ export class QuestionsService {
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    questions[i].choices,
-                );
 
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
 
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
                 createdQuestions.push(createdQuestion);
             }
 
@@ -300,20 +310,24 @@ export class QuestionsService {
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
-                    const choice = await this.choicesRepository.createChoice(
-                        questionId,
-                        questions[idx].choices,
-                    );
-
                     const createdQuestion =
                         await this.questionsRepository.createQuestion(
                             testId,
                             questionId,
                             question,
-                            choice.id,
+                            null,
                             i + 1,
                         );
 
+                    const choice = await this.choicesRepository.createChoice(
+                        questionId,
+                        questions[idx].choices,
+                    );
+
+                    await this.questionsRepository.updateChoice(
+                        questionId,
+                        choice.id,
+                    );
                     createdQuestions.push(createdQuestion);
                 }
                 startingIndex = startingIndex + step;
@@ -346,20 +360,25 @@ export class QuestionsService {
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    questions[i].choices,
-                );
 
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
 
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
                 createdQuestions.push(createdQuestion);
             }
 
@@ -395,20 +414,25 @@ export class QuestionsService {
                     C: '',
                     D: '',
                 };
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    emptyChoice,
-                );
 
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
 
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    emptyChoice,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
                 createdQuestions.push(createdQuestion);
             }
 
@@ -439,20 +463,25 @@ export class QuestionsService {
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    questions[i].choices,
-                );
 
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
 
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
                 createdQuestions.push(createdQuestion);
             }
 
@@ -508,20 +537,24 @@ export class QuestionsService {
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
-                    const choice = await this.choicesRepository.createChoice(
-                        questionId,
-                        questions[idx].choices,
-                    );
-
                     const createdQuestion =
                         await this.questionsRepository.createQuestion(
                             testId,
                             questionId,
                             question,
-                            choice.id,
+                            null,
                             idx + 1,
                         );
 
+                    const choice = await this.choicesRepository.createChoice(
+                        questionId,
+                        questions[idx].choices,
+                    );
+
+                    await this.questionsRepository.updateChoice(
+                        questionId,
+                        choice.id,
+                    );
                     createdQuestions.push(createdQuestion);
                 }
                 startingIndex = startingIndex + step;
@@ -555,19 +588,24 @@ export class QuestionsService {
                 };
 
                 const questionId = uuidv4();
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    questions[i].choices,
-                );
-
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
+
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
 
                 createdQuestions.push(createdQuestion);
             }
@@ -624,20 +662,25 @@ export class QuestionsService {
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
-                    const choice = await this.choicesRepository.createChoice(
-                        questionId,
-                        questions[idx].choices,
-                    );
 
                     const createdQuestion =
                         await this.questionsRepository.createQuestion(
                             testId,
                             questionId,
                             question,
-                            choice.id,
+                            null,
                             idx + 1,
                         );
 
+                    const choice = await this.choicesRepository.createChoice(
+                        questionId,
+                        questions[idx].choices,
+                    );
+
+                    await this.questionsRepository.updateChoice(
+                        questionId,
+                        choice.id,
+                    );
                     createdQuestions.push(createdQuestion);
                 }
                 startingIndex = startingIndex + step;
@@ -670,20 +713,25 @@ export class QuestionsService {
                 };
 
                 const questionId = uuidv4();
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    questions[i].choices,
-                );
 
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
 
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    questions[i].choices,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
                 createdQuestions.push(createdQuestion);
             }
 
@@ -739,20 +787,25 @@ export class QuestionsService {
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
-                    const choice = await this.choicesRepository.createChoice(
-                        questionId,
-                        questions[idx].choices,
-                    );
 
                     const createdQuestion =
                         await this.questionsRepository.createQuestion(
                             testId,
                             questionId,
                             question,
-                            choice.id,
+                            null,
                             idx + 1,
                         );
 
+                    const choice = await this.choicesRepository.createChoice(
+                        questionId,
+                        questions[idx].choices,
+                    );
+
+                    await this.questionsRepository.updateChoice(
+                        questionId,
+                        choice.id,
+                    );
                     createdQuestions.push(createdQuestion);
                 }
                 startingIndex = startingIndex + step;
