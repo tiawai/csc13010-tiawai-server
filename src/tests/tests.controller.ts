@@ -36,6 +36,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import type { Multer } from 'multer';
 import { UpdateToeicQuestionsDto } from './dtos/update-toeic-questions.dto';
 import { QuestionsService } from './services/questions.service';
+import { AnswerSheetDto } from './dtos/create-answer.dto';
 @Controller('tests')
 export class TestsController {
     constructor(
@@ -56,6 +57,45 @@ export class TestsController {
     @Roles(Role.ADMIN)
     async getAllTests() {
         return this.testsService.getAllTests();
+    }
+
+    @ApiOperation({ summary: 'Submit a test by ID [STUDENT]' })
+    @ApiBearerAuth('access-token')
+    @Post('test/:id/submission')
+    @ApiResponse({
+        status: 200,
+        description: 'Test submitted successfully',
+    })
+    @ApiBody({
+        type: AnswerSheetDto,
+        examples: {
+            example1: {
+                value: {
+                    timeConsumed: 2850,
+                    answers: [
+                        { questionOrder: 1, answer: 'A' },
+                        { questionOrder: 2, answer: 'C' },
+                        { questionOrder: 3, answer: 'B' },
+                        { questionOrder: 4, answer: 'D' },
+                        { questionOrder: 5, answer: 'A' },
+                        { questionOrder: 6, answer: 'B' },
+                        { questionOrder: 7, answer: 'C' },
+                        { questionOrder: 8, answer: 'A' },
+                        { questionOrder: 9, answer: 'D' },
+                        { questionOrder: 10, answer: 'B' },
+                    ],
+                },
+            },
+        },
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.STUDENT)
+    async submitTest(
+        @Request() req: any,
+        @Param('id') id: string,
+        @Body() body: AnswerSheetDto,
+    ) {
+        return this.testsService.submitTest(id, req.user.id, body);
     }
 
     @ApiOperation({ summary: 'Get test by id [ADMIN]' })
