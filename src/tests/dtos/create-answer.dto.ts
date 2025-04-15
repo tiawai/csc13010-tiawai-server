@@ -30,7 +30,6 @@ export class AnswerSheetDto {
     })
     @IsNotEmpty()
     @IsNumber()
-    @IsInt()
     @Min(0)
     timeConsumed: number;
 
