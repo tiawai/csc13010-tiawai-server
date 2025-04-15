@@ -9,7 +9,7 @@ import { User } from '../../users/entities/user.model';
 
 export enum PaymentStatus {
     PENDING = 'PENDING',
-    COMPLETED = 'COMPLETED',
+    SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
     CANCELLED = 'CANCELLED',
 }
@@ -21,7 +21,7 @@ export enum PaymentType {
 
 export enum PayoutStatus {
     PENDING = 'PENDING',
-    PROCESSED = 'PROCESSED',
+    SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
 }
 

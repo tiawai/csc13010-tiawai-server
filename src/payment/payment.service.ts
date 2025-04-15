@@ -2,6 +2,8 @@ import {
     Injectable,
     NotFoundException,
     BadRequestException,
+    OnModuleInit,
+    Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -72,7 +74,7 @@ export class PaymentService {
                 await user.update({ balance: user.balance + payment.amount });
             }
 
-            await payment.update({ status: PaymentStatus.COMPLETED });
+            await payment.update({ status: PaymentStatus.SUCCESS });
             console.log('payment', payment);
         } catch (error) {
             throw new Error(`Failed to create payment: ${error.message}`);
@@ -158,18 +160,34 @@ export class PaymentService {
             await payment.update({ status: PaymentStatus.CANCELLED });
         } else {
             if (payment.type === PaymentType.BALANCE) {
-                const user = await User.findOne({
+                const student = await User.findOne({
                     where: { id: payment.studentId },
                 });
 
-                if (!user) {
-                    throw new NotFoundException('User not found');
+                if (!student) {
+                    throw new NotFoundException('Student not found');
                 }
 
-                await user.update({ balance: user.balance + payment.amount });
+                await student.update({
+                    balance: student.balance + payment.amount,
+                });
             }
 
-            await payment.update({ status: PaymentStatus.COMPLETED });
+            if (payment.type === PaymentType.CLASSROOM) {
+                const teacher = await User.findOne({
+                    where: { id: payment.teacherId },
+                });
+
+                if (!teacher) {
+                    throw new NotFoundException('Teacher not found');
+                }
+
+                await teacher.update({
+                    balance: teacher.balance + payment.amount,
+                });
+            }
+
+            await payment.update({ status: PaymentStatus.SUCCESS });
         }
 
         return payment;
