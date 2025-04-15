@@ -4,7 +4,6 @@ import {
     IsString,
     IsNumber,
     IsUUID,
-    IsInt,
     Min,
     IsArray,
     ValidateNested,
