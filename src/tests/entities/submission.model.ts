@@ -1,5 +1,4 @@
-import { Model } from 'sequelize';
-import { Column, Table } from 'sequelize-typescript';
+import { Column, Model, Table } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 
 @Table({
@@ -32,7 +31,7 @@ export class Submission extends Model {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-            model: 'users',
+            model: 'accounts',
             key: 'id',
         },
         onDelete: 'CASCADE',

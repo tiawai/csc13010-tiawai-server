@@ -5,14 +5,27 @@ import { TestsRepository } from './repositories/tests.repository';
 import { QuestionsService } from './services/questions.service';
 import { QuestionsRepository } from './repositories/questions.repository';
 import { ChoicesRepository } from './repositories/choices.repository';
+import { SubmissionsRepository } from './repositories/submissions.repository';
+import { AnswerRepository } from './repositories/answer.repository';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Test } from './entities/test.model';
 import { Question } from './entities/question.model';
 import { Choice } from './entities/choice.model';
+import { Submission } from './entities/submission.model';
+import { Answer } from './entities/answer.model';
 import { AccessControlService } from '../ac/ac.service';
 import { UploadService } from '../uploader/upload.service';
+
 @Module({
-    imports: [SequelizeModule.forFeature([Test, Question, Choice])],
+    imports: [
+        SequelizeModule.forFeature([
+            Test,
+            Question,
+            Choice,
+            Submission,
+            Answer,
+        ]),
+    ],
     controllers: [TestsController],
     providers: [
         TestsService,
@@ -20,6 +33,8 @@ import { UploadService } from '../uploader/upload.service';
         QuestionsService,
         QuestionsRepository,
         ChoicesRepository,
+        SubmissionsRepository,
+        AnswerRepository,
         AccessControlService,
         UploadService,
     ],
