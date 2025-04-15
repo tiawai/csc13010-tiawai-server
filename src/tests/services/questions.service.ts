@@ -16,6 +16,10 @@ export class QuestionsService {
         private readonly choicesRepository: ChoicesRepository,
     ) {}
 
+    async getQuestionsByTestId(testId: string): Promise<Question[]> {
+        return this.questionsRepository.getQuestionsByTestId(testId);
+    }
+
     async createNationalTestBatchQuestions(
         testId: string,
         totalQuestions: number,

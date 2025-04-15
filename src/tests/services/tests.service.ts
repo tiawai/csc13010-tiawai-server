@@ -1,9 +1,14 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+} from '@nestjs/common';
 import { TestsRepository } from '../repositories/tests.repository';
 import { Test } from '../entities/test.model';
 import { CreateTestDto } from '../dtos/create-test.dto';
 import { CreateQuestionDto } from '../dtos/create-question.dto';
 import { QuestionsService } from './questions.service';
+import { Question } from '../entities/question.model';
 
 @Injectable()
 export class TestsService {
@@ -21,6 +26,18 @@ export class TestsService {
                 error.message,
             );
         }
+    }
+
+    async getTestById(
+        id: string,
+    ): Promise<{ test: Test; questions: Question[] }> {
+        const test = await this.testsRepository.findById(id);
+        if (!test) {
+            throw new NotFoundException('Test not found');
+        }
+
+        const questions = await this.questionsService.getQuestionsByTestId(id);
+        return { test: test, questions: questions };
     }
 
     async createNationalTest(

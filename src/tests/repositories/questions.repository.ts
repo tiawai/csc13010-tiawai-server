@@ -43,6 +43,20 @@ export class QuestionsRepository {
         }
     }
 
+    async getQuestionsByTestId(testId: string): Promise<Question[]> {
+        try {
+            const questions = await this.questionModel.findAll({
+                where: { testId },
+            });
+
+            return questions.map(
+                (question) => question.dataValues,
+            ) as Question[];
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
+
     async updateChoice(
         questionId: string,
         choiceId: string,

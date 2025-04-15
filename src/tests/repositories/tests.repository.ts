@@ -20,6 +20,15 @@ export class TestsRepository {
         }
     }
 
+    async findById(id: string): Promise<Test> {
+        try {
+            const test = await this.testModel.findByPk<Test>(id);
+            return test.dataValues as Test;
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
+
     async createTest(
         createTestDto: CreateTestDto,
         authorId: string,

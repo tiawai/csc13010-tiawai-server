@@ -58,6 +58,20 @@ export class TestsController {
         return this.testsService.getAllTests();
     }
 
+    @ApiOperation({ summary: 'Get test by id [ADMIN]' })
+    @ApiBearerAuth('access-token')
+    @Get('admin/test/:id')
+    @ApiResponse({
+        status: 200,
+        description: 'Test retrieved successfully',
+        type: Test,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    async getTestById(@Param('id') id: string) {
+        return this.testsService.getTestById(id);
+    }
+
     @ApiOperation({ summary: 'Create a new national test [ADMIN]' })
     @ApiBearerAuth('access-token')
     @Post('admin/national-test')
