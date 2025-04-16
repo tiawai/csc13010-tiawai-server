@@ -173,20 +173,13 @@ export class QuestionsService {
         testId: string,
         totalQuestions: number,
         questions: CreateQuestionDto[],
-        imagesUrls: string[],
     ): Promise<Question[]> {
         try {
-            const urls: Map<number, { url: string; sequence: number }[]> =
-                this.parseImageUrlsToQuestions(imagesUrls);
-            if (urls) {
-                // do nothing to fix lint
-            }
             const createdQuestions: Question[] = [];
 
             for (let i = 0; i < 6; i++) {
                 const question = {
                     ...questions[i],
-                    // images: urls.get(i + 1).map((item) => item.url),
                     paragraph: null,
                     content: null,
                     explanation: null,
@@ -333,12 +326,12 @@ export class QuestionsService {
                             questionId,
                             question,
                             null,
-                            i + 1,
+                            idx + 1,
                         );
 
                     const choice = await this.choicesRepository.createChoice(
                         questionId,
-                        questionData?.choices,
+                        questionData.choices,
                     );
 
                     await this.questionsRepository.updateChoice(
@@ -655,8 +648,7 @@ export class QuestionsService {
             const urls: Map<number, { url: string; sequence: number }[]> =
                 this.parseImageUrlsToQuestions(imagesUrls);
 
-            // check if the batch is valid
-            let startingIndex = 32;
+            let startingIndex = 31;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
                 startingIndex = startingIndex + step;
@@ -680,7 +672,7 @@ export class QuestionsService {
                         ...questions[idx - offset],
                         images:
                             idx === startingIndex
-                                ? image.map((item) => item.url)
+                                ? image?.map((item) => item.url)
                                 : [],
                         paragraph: null,
                         content: questions[idx - offset].content,
@@ -781,8 +773,7 @@ export class QuestionsService {
             const urls: Map<number, { url: string; sequence: number }[]> =
                 this.parseImageUrlsToQuestions(imagesUrls);
 
-            // check if the batch is valid
-            let startingIndex = 71;
+            let startingIndex = 70;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
                 startingIndex = startingIndex + step;
@@ -806,7 +797,7 @@ export class QuestionsService {
                         ...questions[idx - offset],
                         images:
                             idx === startingIndex
-                                ? image.map((item) => item.url)
+                                ? image?.map((item) => item.url)
                                 : [],
                         paragraph: null,
                         content: questions[idx - offset].content,
