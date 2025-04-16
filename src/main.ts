@@ -59,14 +59,15 @@ async function bootstrap() {
         new ValidationPipe({
             whitelist: true,
             forbidNonWhitelisted: true,
+            transform: true,
         }),
     );
 
     const configService = app.get(ConfigService);
     const port = configService.get('SERVER_PORT');
 
-    app.use(json());
-    app.use(urlencoded({ extended: true }));
+    app.use(json({ limit: '10mb' }));
+    app.use(urlencoded({ extended: true, limit: '10mb' }));
 
     app.enableCors({ credentials: true, origin: true });
 
@@ -100,8 +101,6 @@ async function bootstrap() {
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, documentFactory);
 
-    app.use(json({ limit: '10mb' }));
-    app.use(urlencoded({ extended: true, limit: '10mb' }));
     await app.listen(port, () => logger.warn(`> Listening on port ${port}`));
 }
 void bootstrap();
