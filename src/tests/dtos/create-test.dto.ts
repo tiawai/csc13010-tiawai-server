@@ -7,6 +7,7 @@ import {
     IsString,
 } from 'class-validator';
 import { TestType } from '../enums/test-type.enum';
+import { Type } from 'class-transformer';
 
 export class CreateTestDto {
     @ApiProperty({ description: 'Title of the test' })
@@ -29,6 +30,7 @@ export class CreateTestDto {
     })
     @IsNotEmpty()
     @IsDate()
+    @Type(() => Date)
     startDate: Date;
 
     @ApiProperty({
@@ -37,6 +39,7 @@ export class CreateTestDto {
     })
     @IsNotEmpty()
     @IsDate()
+    @Type(() => Date)
     endDate: Date;
 
     @ApiProperty({
