@@ -2,12 +2,15 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Question } from '../entities/question.model';
 import { CreateQuestionDto } from '../dtos/create-question.dto';
+import { Choice } from '../entities/choice.model';
 
 @Injectable()
 export class QuestionsRepository {
     constructor(
         @InjectModel(Question)
         private readonly questionModel: typeof Question,
+        @InjectModel(Choice)
+        private readonly choiceModel: typeof Choice,
     ) {}
 
     async createQuestion(
@@ -43,15 +46,23 @@ export class QuestionsRepository {
         }
     }
 
-    async getQuestionsByTestId(testId: string): Promise<Question[]> {
+    async getQuestionsByTestId(testId: string) {
         try {
             const questions = await this.questionModel.findAll({
                 where: { testId },
             });
 
-            return questions.map(
-                (question) => question.dataValues,
-            ) as Question[];
+            return await Promise.all(
+                questions.map(async (question) => {
+                    const choices = await this.choiceModel.findByPk(
+                        question.dataValues.choices,
+                    );
+                    return {
+                        ...question.dataValues,
+                        choices: { ...choices.dataValues },
+                    };
+                }),
+            );
         } catch (error: any) {
             throw new InternalServerErrorException((error as Error).message);
         }

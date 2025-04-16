@@ -16,7 +16,7 @@ export class QuestionsService {
         private readonly choicesRepository: ChoicesRepository,
     ) {}
 
-    async getQuestionsByTestId(testId: string): Promise<Question[]> {
+    async getQuestionsByTestId(testId: string) {
         return this.questionsRepository.getQuestionsByTestId(testId);
     }
 
@@ -36,19 +36,24 @@ export class QuestionsService {
                 };
                 const questionId = uuidv4();
 
-                const choice = await this.choicesRepository.createChoice(
-                    questionId,
-                    question.choices,
-                );
-
                 const createdQuestion =
                     await this.questionsRepository.createQuestion(
                         testId,
                         questionId,
                         question,
-                        choice.id,
+                        null,
                         i + 1,
                     );
+
+                const choice = await this.choicesRepository.createChoice(
+                    questionId,
+                    question.choices,
+                );
+
+                await this.questionsRepository.updateChoice(
+                    questionId,
+                    choice.id,
+                );
 
                 createdQuestions.push(createdQuestion);
             }
@@ -178,7 +183,7 @@ export class QuestionsService {
             for (let i = 0; i < 6; i++) {
                 const question = {
                     ...questions[i],
-                    images: urls.get(i + 1).map((item) => item.url),
+                    // images: urls.get(i + 1).map((item) => item.url),
                     paragraph: null,
                     content: null,
                     explanation: null,
@@ -282,11 +287,10 @@ export class QuestionsService {
             const urls: Map<number, { url: string; sequence: number }[]> =
                 this.parseImageUrlsToQuestions(imagesUrls);
 
-            // check if the batch is valid
             let startingIndex = 30;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
-                startingIndex = startingIndex + step;
+                startingIndex += step;
             }
             if (startingIndex != 46) {
                 throw new BadRequestException('Invalid batch');
@@ -294,22 +298,28 @@ export class QuestionsService {
 
             const createdQuestions: Question[] = [];
             startingIndex = 30;
+            const offset = 30;
+
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
-                const image = urls.get(startingIndex + 1);
+                const imageKey = startingIndex + 1;
+                const image = urls.get(imageKey);
                 for (
                     let idx = startingIndex;
                     idx < startingIndex + step;
                     ++idx
                 ) {
+                    const qIndex = idx - offset;
+                    const questionData = questions[qIndex];
+
                     const question = {
-                        ...questions[idx],
+                        ...questionData,
                         images:
-                            idx === startingIndex
+                            idx === startingIndex && image
                                 ? image.map((item) => item.url)
                                 : [],
                         paragraph: null,
-                        content: questions[idx].content,
+                        content: questionData?.content,
                         explanation: null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
@@ -325,7 +335,7 @@ export class QuestionsService {
 
                     const choice = await this.choicesRepository.createChoice(
                         questionId,
-                        questions[idx].choices,
+                        questionData?.choices,
                     );
 
                     await this.questionsRepository.updateChoice(
@@ -334,7 +344,7 @@ export class QuestionsService {
                     );
                     createdQuestions.push(createdQuestion);
                 }
-                startingIndex = startingIndex + step;
+                startingIndex += step;
             }
 
             return createdQuestions;
@@ -509,38 +519,44 @@ export class QuestionsService {
             const urls: Map<number, { url: string; sequence: number }[]> =
                 this.parseImageUrlsToQuestions(imagesUrls);
 
-            // check if the batch is valid
-            let startingIndex = 47;
+            let startingIndex = 46;
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
-                startingIndex = startingIndex + step;
+                startingIndex += step;
             }
-            if (startingIndex != 100) {
+
+            if (startingIndex !== 100) {
                 throw new BadRequestException('Invalid batch');
             }
 
             const createdQuestions: Question[] = [];
             startingIndex = 46;
             const offset = 46;
+
             for (let i = 0; i < batch.length; i++) {
                 const step = batch[i];
-                const image = urls.get(startingIndex + 1);
+                const imageKey = startingIndex + 1;
+                const image = urls.get(imageKey);
                 for (
                     let idx = startingIndex;
                     idx < startingIndex + step;
                     idx++
                 ) {
+                    const qIndex = idx - offset;
+                    const questionData = questions[qIndex];
+
                     const question = {
-                        ...questions[idx - offset],
+                        ...questionData,
                         images:
-                            idx === startingIndex
+                            idx === startingIndex && image
                                 ? image.map((item) => item.url)
                                 : [],
                         paragraph: null,
-                        content: questions[idx - offset].content,
+                        content: questionData?.content,
                         explanation: null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
+
                     const questionId = uuidv4();
                     const createdQuestion =
                         await this.questionsRepository.createQuestion(
@@ -553,7 +569,7 @@ export class QuestionsService {
 
                     const choice = await this.choicesRepository.createChoice(
                         questionId,
-                        questions[idx - offset].choices,
+                        questionData?.choices,
                     );
 
                     await this.questionsRepository.updateChoice(
@@ -562,7 +578,8 @@ export class QuestionsService {
                     );
                     createdQuestions.push(createdQuestion);
                 }
-                startingIndex = startingIndex + step;
+
+                startingIndex += step;
             }
 
             return createdQuestions;
