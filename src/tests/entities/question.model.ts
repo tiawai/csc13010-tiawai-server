@@ -53,7 +53,7 @@ export class Question extends Model {
 
     @Column({
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'choices',
             key: 'id',
