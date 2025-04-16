@@ -38,7 +38,10 @@ export class FlashcardService {
     }
 
     async findOne(id: string, userId: string): Promise<FlashcardEntity> {
-        const flashcard = await this.flashcardRepository.findOne(id, userId);
+        console.log('id', id);
+        const { dataValues: flashcard } =
+            await this.flashcardRepository.findOne(id, userId);
+
         if (!flashcard) {
             throw new NotFoundException(`Flashcard with ID ${id} not found`);
         }
