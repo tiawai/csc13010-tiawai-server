@@ -100,14 +100,14 @@ export class TestsController {
 
     @ApiOperation({ summary: 'Get test by id [ADMIN]' })
     @ApiBearerAuth('access-token')
-    @Get('admin/test/:id')
+    @Get('test/:id')
     @ApiResponse({
         status: 200,
         description: 'Test retrieved successfully',
         type: Test,
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.STUDENT)
     async getTestById(@Param('id') id: string) {
         return this.testsService.getTestById(id);
     }
@@ -159,7 +159,7 @@ export class TestsController {
     @Roles(Role.ADMIN)
     async createToeicListeningTest(
         @Request() req: any,
-        @Param('audioUrl') audioUrl: string,
+        @Query('audioUrl') audioUrl: string,
         @Body()
         createTestDto: CreateTestDto,
     ) {
@@ -216,7 +216,6 @@ export class TestsController {
     @UseInterceptors(FileInterceptor('audio'))
     async uploadAudio(@UploadedFile() file: Multer.File) {
         const audioUrl = await this.uploadService.uploadAudio(file);
-
         return {
             audioUrl: audioUrl,
             message: 'Audio uploaded successfully',
