@@ -24,7 +24,6 @@ export class FlashcardRepository {
     async findAll(userId: string): Promise<FlashcardEntity[]> {
         return this.flashcardModel.findAll({
             where: { userId },
-            order: [['uploadAt', 'DESC']],
         });
     }
 
