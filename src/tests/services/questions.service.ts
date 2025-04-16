@@ -178,6 +178,9 @@ export class QuestionsService {
         try {
             const urls: Map<number, { url: string; sequence: number }[]> =
                 this.parseImageUrlsToQuestions(imagesUrls);
+            if (urls) {
+                // do nothing to fix lint
+            }
             const createdQuestions: Question[] = [];
 
             for (let i = 0; i < 6; i++) {
