@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
 import { Document } from '@langchain/core/documents';
@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class VectorStoreService {
+    private readonly logger = new Logger(VectorStoreService.name);
     private pgvectorStore: PGVectorStore;
     private pool: Pool;
 
@@ -73,11 +74,48 @@ export class VectorStoreService {
         await this.pgvectorStore.addDocuments(documents);
     }
 
-    similaritySearch(query: string, limit: number): any {
+    async similaritySearch(
+        query: string,
+        limit: number = 5,
+        scoreThreshold?: number,
+        filter?: Record<string, any>,
+    ): Promise<Document[]> {
         if (!this.pgvectorStore) {
             throw new Error('Vector store not initialized');
         }
-        return this.pgvectorStore.similaritySearch(query, limit);
+
+        try {
+            this.logger.debug(
+                `Performing similarity search with query: "${query}", limit: ${limit}`,
+            );
+
+            // Perform the basic similarity search
+            let results = await this.pgvectorStore.similaritySearchWithScore(
+                query,
+                limit,
+                filter,
+            );
+
+            // Filter by score threshold if provided
+            if (scoreThreshold !== undefined) {
+                results = results.filter(
+                    ([, score]) => score >= scoreThreshold,
+                );
+            }
+
+            this.logger.debug(`Search returned ${results.length} results`);
+
+            // Return just the documents without scores
+            return results.map(([document]) => document);
+        } catch (error) {
+            this.logger.error(
+                `Error performing similarity search: ${error.message}`,
+                error.stack,
+            );
+            throw new Error(
+                `Failed to perform similarity search: ${error.message}`,
+            );
+        }
     }
 
     asRetriever(): any {
