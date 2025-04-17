@@ -2,6 +2,7 @@ import {
     Injectable,
     BadRequestException,
     NotFoundException,
+    ForbiddenException,
 } from '@nestjs/common';
 import { Classroom } from '../entities/classroom.model';
 import { CreateClassroomDto } from '../dtos/create-classroom.dto';
@@ -9,12 +10,15 @@ import { CreateClassroomRatingDto } from '../dtos/create-classroom-rating.dto';
 import { Sequelize } from 'sequelize-typescript';
 import { ClassroomRepository } from '../repositories/classroom.repository';
 import { ClassroomRatingRepository } from '../repositories/classroom-rating.repository';
+import { ClassroomStudentRepository } from '../repositories/classroom-student.repository';
+import { ClassroomStudent } from '../entities/classroom-students.model';
 
 @Injectable()
 export class ClassroomService {
     constructor(
         private classroomRepository: ClassroomRepository,
         private classroomRatingRepository: ClassroomRatingRepository,
+        private classroomStudentRepository: ClassroomStudentRepository,
         private sequelize: Sequelize,
     ) {}
 
@@ -141,5 +145,79 @@ export class ClassroomService {
         }
 
         return result;
+    }
+
+    async addStudentToClassroom(
+        teacherId: string,
+        classId: string,
+        studentId: string,
+    ): Promise<ClassroomStudent> {
+        // Verify the teacher owns this classroom
+        const classrooms = await this.findByTeacher(teacherId);
+        const isOwner = classrooms.some(
+            (classroom) => classroom.id === classId,
+        );
+
+        if (!isOwner) {
+            throw new ForbiddenException(
+                'You do not have permission to add students to this classroom',
+            );
+        }
+
+        // Add the student to the classroom
+        return this.classroomStudentRepository.addStudentToClassroom(
+            classId,
+            studentId,
+        );
+    }
+
+    async getStudentsByClassroom(
+        classId: string,
+        teacherId: string,
+    ): Promise<ClassroomStudent[]> {
+        // Verify the teacher owns this classroom
+        const classrooms = await this.findByTeacher(teacherId);
+        const isOwner = classrooms.some(
+            (classroom) => classroom.id === classId,
+        );
+
+        if (!isOwner) {
+            throw new ForbiddenException(
+                'You do not have permission to view students in this classroom',
+            );
+        }
+
+        return this.classroomStudentRepository.getStudentsByClassroom(classId);
+    }
+
+    async getClassroomsByStudent(
+        studentId: string,
+    ): Promise<ClassroomStudent[]> {
+        return this.classroomStudentRepository.getClassroomsByStudent(
+            studentId,
+        );
+    }
+
+    async removeStudentFromClassroom(
+        teacherId: string,
+        classId: string,
+        studentId: string,
+    ): Promise<boolean> {
+        // Verify the teacher owns this classroom
+        const classrooms = await this.findByTeacher(teacherId);
+        const isOwner = classrooms.some(
+            (classroom) => classroom.id === classId,
+        );
+
+        if (!isOwner) {
+            throw new ForbiddenException(
+                'You do not have permission to remove students from this classroom',
+            );
+        }
+
+        return this.classroomStudentRepository.removeStudentFromClassroom(
+            classId,
+            studentId,
+        );
     }
 }

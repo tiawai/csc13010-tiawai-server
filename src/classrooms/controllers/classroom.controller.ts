@@ -31,6 +31,7 @@ import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/enums/roles.enum';
 import { UploadService } from '../../uploader/upload.service';
+import { AddStudentDto } from '../dtos/add-student.dto';
 
 @ApiTags('Classrooms')
 @Controller('classrooms')
@@ -273,6 +274,43 @@ export class ClassroomController {
             id,
             req.user.id,
             createRatingDto,
+        );
+    }
+
+    @Post(':id/student')
+    @ApiOperation({ summary: 'Add a student to a classroom [TEACHER]' })
+    @ApiParam({ name: 'id', description: 'Classroom ID' })
+    @ApiBody({
+        type: AddStudentDto,
+        description: 'Student to add to the classroom',
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Student added to classroom successfully',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Classroom or student not found',
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Teacher does not own this classroom',
+    })
+    @ApiResponse({
+        status: 409,
+        description: 'Student is already in this classroom',
+    })
+    @UseGuards(RolesGuard)
+    @Roles(Role.TEACHER)
+    async addStudentToClassroom(
+        @Param('id') classId: string,
+        @Body() addStudentDto: AddStudentDto,
+        @Request() req,
+    ) {
+        return this.classroomService.addStudentToClassroom(
+            req.user.id,
+            classId,
+            addStudentDto.studentId,
         );
     }
 }

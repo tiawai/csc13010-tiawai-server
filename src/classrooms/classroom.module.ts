@@ -10,14 +10,20 @@ import { memoryStorage } from 'multer';
 import { UploadModule } from '../uploader/upload.module';
 import { ClassroomRepository } from './repositories/classroom.repository';
 import { ClassroomRatingRepository } from './repositories/classroom-rating.repository';
+import { ClassroomStudentRepository } from './repositories/classroom-student.repository';
 import { AccessControlService } from '../ac/ac.service';
 import { LessonController } from './controllers/lesson.controller';
 import { LessonService } from './services/lesson.service';
 import { LessonRepository } from './repositories/lesson.repository';
-
+import { ClassroomStudent } from './entities/classroom-students.model';
 @Module({
     imports: [
-        SequelizeModule.forFeature([Classroom, ClassroomRating, Lesson]),
+        SequelizeModule.forFeature([
+            Classroom,
+            ClassroomRating,
+            ClassroomStudent,
+            Lesson,
+        ]),
         MulterModule.register({
             storage: memoryStorage(),
             limits: {
@@ -31,6 +37,7 @@ import { LessonRepository } from './repositories/lesson.repository';
         ClassroomService,
         ClassroomRepository,
         ClassroomRatingRepository,
+        ClassroomStudentRepository,
         LessonService,
         LessonRepository,
         AccessControlService,
