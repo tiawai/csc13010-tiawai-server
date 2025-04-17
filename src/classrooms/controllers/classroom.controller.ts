@@ -11,6 +11,7 @@ import {
     UseInterceptors,
     UploadedFile,
     ForbiddenException,
+    NotFoundException,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -32,6 +33,7 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/enums/roles.enum';
 import { UploadService } from '../../uploader/upload.service';
 import { AddStudentDto } from '../dtos/add-student.dto';
+import { ClassroomStudent } from '../entities/classroom-students.model';
 
 @ApiTags('Classrooms')
 @Controller('classrooms')
@@ -312,5 +314,92 @@ export class ClassroomController {
             classId,
             addStudentDto.studentId,
         );
+    }
+
+    @Get(':id/students')
+    @ApiOperation({ summary: 'Get all students in a classroom [TEACHER]' })
+    @ApiParam({ name: 'id', description: 'Classroom ID' })
+    @ApiResponse({
+        status: 200,
+        description: 'Returns list of students in the classroom',
+        type: [ClassroomStudent],
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Teacher does not own this classroom',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Classroom not found',
+    })
+    @UseGuards(RolesGuard)
+    @Roles(Role.TEACHER)
+    async getStudentsByClassroom(@Param('id') classId: string, @Request() req) {
+        return this.classroomService.getStudentsByClassroom(
+            classId,
+            req.user.id,
+        );
+    }
+
+    @Get('student/:studentId/classrooms')
+    @ApiOperation({
+        summary: 'Get all classrooms a student is enrolled in [STUDENT]',
+    })
+    @ApiParam({ name: 'studentId', description: 'Student ID' })
+    @ApiResponse({
+        status: 200,
+        description: 'Returns list of classrooms the student is enrolled in',
+        type: [ClassroomStudent],
+    })
+    @UseGuards(RolesGuard)
+    @Roles(Role.STUDENT)
+    async getClassroomsByStudent(
+        @Param('studentId') studentId: string,
+        @Request() req,
+    ) {
+        // For students, only allow them to see their own classrooms
+        if (req.user.role === Role.STUDENT && req.user.id !== studentId) {
+            throw new ForbiddenException(
+                'You can only view your own enrolled classrooms',
+            );
+        }
+
+        return this.classroomService.getClassroomsByStudent(studentId);
+    }
+
+    @Delete(':id/student/:studentId')
+    @ApiOperation({ summary: 'Remove a student from a classroom [TEACHER]' })
+    @ApiParam({ name: 'id', description: 'Classroom ID' })
+    @ApiParam({ name: 'studentId', description: 'Student ID to remove' })
+    @ApiResponse({
+        status: 200,
+        description: 'Student removed from classroom successfully',
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Teacher does not own this classroom',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Classroom or student not found',
+    })
+    @UseGuards(RolesGuard)
+    @Roles(Role.TEACHER)
+    async removeStudentFromClassroom(
+        @Param('id') classId: string,
+        @Param('studentId') studentId: string,
+        @Request() req,
+    ) {
+        const result = await this.classroomService.removeStudentFromClassroom(
+            req.user.id,
+            classId,
+            studentId,
+        );
+
+        if (!result) {
+            throw new NotFoundException('Student not found in this classroom');
+        }
+
+        return { message: 'Student removed from classroom successfully' };
     }
 }
