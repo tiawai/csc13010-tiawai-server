@@ -21,7 +21,7 @@ export class AnswerRepository {
                     id: uuidv4(),
                     submissionId,
                     questionId: answer.questionId,
-                    answer: answer.answer,
+                    answer: answer.answer || null,
                     createdAt: new Date(),
                 });
 

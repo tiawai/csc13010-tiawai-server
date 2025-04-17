@@ -7,6 +7,7 @@ import {
     Min,
     IsArray,
     ValidateNested,
+    IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -17,7 +18,7 @@ export class CreateAnswerDto {
     questionOrder: number;
 
     @ApiProperty({ description: 'Answer' })
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     answer: string;
 }
@@ -52,7 +53,7 @@ export class CreateAnswerWithQuestionIdDto {
     questionId: string;
 
     @ApiProperty({ description: 'Answer' })
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     answer: string;
 }

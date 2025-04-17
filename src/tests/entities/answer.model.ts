@@ -41,7 +41,7 @@ export class Answer extends Model {
 
     @Column({
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     answer: string;
 
