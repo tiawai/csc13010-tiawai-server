@@ -9,9 +9,10 @@ import { CreateTestDto } from '../dtos/create-test.dto';
 import { CreateQuestionDto } from '../dtos/create-question.dto';
 import { QuestionsService } from './questions.service';
 import { Question } from '../entities/question.model';
-import { AnswerSheetDto } from '../dtos/create-answer.dto';
 import { SubmissionsRepository } from '../repositories/submissions.repository';
 import { AnswerRepository } from '../repositories/answer.repository';
+import { TestType } from '../enums/test-type.enum';
+import { AnswerSheetDto } from '../dtos/create-answer.dto';
 @Injectable()
 export class TestsService {
     constructor(
@@ -173,5 +174,13 @@ export class TestsService {
                 error.message,
             );
         }
+    }
+
+    async getTestsByType(type: TestType): Promise<Test[]> {
+        const tests = await this.testsRepository.findByType(type);
+        if (!tests) {
+            throw new NotFoundException('No tests found');
+        }
+        return tests;
     }
 }

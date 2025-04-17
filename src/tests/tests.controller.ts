@@ -807,4 +807,22 @@ export class TestsController {
             })),
         };
     }
+
+    @ApiOperation({ summary: 'Get tests by type [ANYONE]' })
+    @Get()
+    @ApiQuery({
+        name: 'type',
+        required: true,
+        description: 'Type of test to filter by',
+        enum: TestType,
+        enumName: 'TestType',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Tests retrieved successfully',
+        type: [Test],
+    })
+    async getTestsByType(@Query('type') type: TestType) {
+        return this.testsService.getTestsByType(type);
+    }
 }
