@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Test } from '../entities/test.model';
 import { CreateTestDto } from '../dtos/create-test.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { TestType } from '../enums/test-type.enum';
 
 @Injectable()
 export class TestsRepository {
@@ -58,5 +59,16 @@ export class TestsRepository {
         } catch (error: any) {
             throw new InternalServerErrorException((error as Error).message);
         }
+    }
+
+    async findByType(type: TestType): Promise<Test[]> {
+        const tests = await this.testModel.findAll({
+            where: {
+                type: type,
+            },
+            order: [['createdAt', 'DESC']],
+        });
+        if (!tests) return null;
+        return tests.map((test) => test.dataValues as Test);
     }
 }
