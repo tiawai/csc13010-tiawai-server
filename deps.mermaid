@@ -15,6 +15,7 @@ graph LR
   AppModule-->MailerModule
   AppModule-->PaymentModule
   AppModule-->RedisCoreModule
+  AppModule-->ReportsModule
   AppModule-->ScheduleModule
   AppModule-->SequelizeCoreModule
   AppModule-->SequelizeModule
@@ -121,11 +122,21 @@ graph LR
   RedisModule-->RedisCoreModule
   RedisModule-->ScheduleModule
   RedisModule-->SequelizeCoreModule
+  ReportsModule-->AccessControlModule
+  ReportsModule-->ConfigHostModule
+  ReportsModule-->ConfigModule
+  ReportsModule-->MailerCoreModule
+  ReportsModule-->RedisCoreModule
+  ReportsModule-->ScheduleModule
+  ReportsModule-->SequelizeCoreModule
+  ReportsModule-->SequelizeModule
+  ReportsModule-->UsersModule
   ScheduleModule-->ConfigHostModule
   ScheduleModule-->ConfigModule
   ScheduleModule-->DiscoveryModule
   ScheduleModule-->MailerCoreModule
   ScheduleModule-->RedisCoreModule
+  ScheduleModule-->ScheduleModule
   ScheduleModule-->SequelizeCoreModule
   SequelizeCoreModule-->ConfigHostModule
   SequelizeCoreModule-->ConfigModule
