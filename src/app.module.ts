@@ -19,6 +19,7 @@ import { FlashcardEntity } from './flashcards/entities/flashcard.entity';
 import { ClassroomModule } from './classrooms/classroom.module';
 import { Classroom } from './classrooms/entities/classroom.model';
 import { ClassroomRating } from './classrooms/entities/classroom-rating.model';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
     imports: [
@@ -83,6 +84,7 @@ import { ClassroomRating } from './classrooms/entities/classroom-rating.model';
         ChatModule,
         FlashcardModule,
         ClassroomModule,
+        ReportsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
