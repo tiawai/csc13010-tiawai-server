@@ -65,6 +65,11 @@ export class UsersService {
         username: string;
         id: string;
         role: string;
+        phone: string;
+        birthdate: string;
+        profileImage: string;
+        gender: string;
+        address: string;
     }> {
         try {
             const { id } = profileUser;
@@ -79,6 +84,11 @@ export class UsersService {
                 username: user.username,
                 id: user.id,
                 role: user.role,
+                phone: user.phone,
+                birthdate: user.birthdate,
+                profileImage: user.profileImage,
+                gender: user.gender,
+                address: user.address,
             };
             return newUser;
         } catch (error) {
