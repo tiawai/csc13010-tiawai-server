@@ -15,6 +15,8 @@ import { Submission } from './entities/submission.model';
 import { Answer } from './entities/answer.model';
 import { AccessControlService } from '../ac/ac.service';
 import { UploadService } from '../uploader/upload.service';
+import { ClassroomTests } from './entities/classroom-tests.model';
+import { ClassroomTestsRepository } from './repositories/classroom-test.repository';
 
 @Module({
     imports: [
@@ -24,6 +26,7 @@ import { UploadService } from '../uploader/upload.service';
             Choice,
             Submission,
             Answer,
+            ClassroomTests,
         ]),
     ],
     controllers: [TestsController],
@@ -37,6 +40,7 @@ import { UploadService } from '../uploader/upload.service';
         AnswerRepository,
         AccessControlService,
         UploadService,
+        ClassroomTestsRepository,
     ],
     exports: [TestsService, QuestionsService],
 })
