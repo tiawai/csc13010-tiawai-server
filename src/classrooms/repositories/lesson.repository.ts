@@ -68,7 +68,7 @@ export class LessonRepository {
 
     async remove(id: string, transaction?: Transaction): Promise<void> {
         const lesson = await this.findOne(id);
-        const classId = lesson.classId;
+        const classId = lesson.dataValues.classId;
 
         await lesson.destroy({ transaction });
 

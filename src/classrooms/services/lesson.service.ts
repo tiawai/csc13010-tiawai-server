@@ -115,7 +115,7 @@ export class LessonService {
         }
     }
 
-    async remove(teacherId: string, id: string): Promise<void> {
+    async remove(teacherId: string, id: string): Promise<boolean> {
         // Get the lesson first for ownership verification
         const lesson = await this.lessonRepository.findOne(id);
 
@@ -127,6 +127,7 @@ export class LessonService {
         try {
             await this.lessonRepository.remove(id, transaction);
             await transaction.commit();
+            return true;
         } catch (error) {
             await transaction.rollback();
             throw new BadRequestException(
@@ -135,18 +136,17 @@ export class LessonService {
         }
     }
 
-    /**
-     * Verifies if a teacher owns a classroom
-     */
     private async verifyClassroomOwnership(
         teacherId: string,
         classId: string,
     ): Promise<void> {
         const classrooms = await this.classroomService.findByTeacher(teacherId);
-        const isOwner = classrooms.some(
-            (classroom) => classroom.id === classId,
-        );
-
+        let isOwner: boolean = false;
+        classrooms.forEach((classroom) => {
+            if (classroom.dataValues.id === classId) {
+                isOwner = true;
+            }
+        });
         if (!isOwner) {
             throw new ForbiddenException(
                 'You do not have permission to access this classroom',
@@ -154,13 +154,13 @@ export class LessonService {
         }
     }
 
-    /**
-     * Verifies if a teacher owns the classroom a lesson belongs to
-     */
     private async verifyLessonOwnership(
         teacherId: string,
         lesson: Lesson,
     ): Promise<void> {
-        await this.verifyClassroomOwnership(teacherId, lesson.classId);
+        await this.verifyClassroomOwnership(
+            teacherId,
+            lesson.dataValues.classId,
+        );
     }
 }
