@@ -192,6 +192,9 @@ export class LessonController {
     @UseGuards(RolesGuard)
     @Roles(Role.TEACHER)
     async remove(@Param('id') id: string, @Request() req) {
-        return this.lessonService.remove(req.user.id, id);
+        const isDeleted = await this.lessonService.remove(req.user.id, id);
+        if (isDeleted) {
+            return { message: 'Lesson deleted successfully' };
+        }
     }
 }
