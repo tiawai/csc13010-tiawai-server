@@ -26,6 +26,7 @@ export class ReportsRepository {
                     return {
                         ...plainReport,
                         manageBy: {
+                            id: user.dataValues.id,
                             username: user.dataValues.username,
                             profileImage: user.dataValues.profileImage,
                         },
