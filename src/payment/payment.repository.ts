@@ -8,6 +8,7 @@ import {
 import { CreatePaymentDto } from './dtos/create-payment-dto';
 import { BankAccount } from './entities/bank-account.model';
 import { CreateBankAccountDto } from './dtos/create-bank-account.dto';
+import { InternalServerErrorException } from '@nestjs/common';
 
 export class PaymentRepository {
     constructor(
@@ -21,29 +22,59 @@ export class PaymentRepository {
         return this.paymentModel.findAll();
     }
 
+    async findAllByStudentId(studentId: string): Promise<Payment[]> {
+        return this.paymentModel
+            .findAll({
+                where: { studentId },
+                order: [['createdAt', 'DESC']],
+            })
+            .then((payments) => {
+                return payments.map((payment) => payment.dataValues);
+            });
+    }
+
     async findOneByOrderCode(orderCode: number) {
-        if (isNaN(orderCode)) {
-            throw new Error('Invalid orderCode: NaN');
-        }
         const payment = await this.paymentModel.findOne({
             where: { orderCode },
         });
-        return payment.dataValues;
+        return payment.dataValues as Payment;
     }
 
     async createPayment(
         studentId: string,
         data: CreatePaymentDto,
     ): Promise<Payment> {
-        return this.paymentModel.create({
-            ...data,
-            studentId,
-            orderCode: Date.now(),
-            payoutStatus:
-                data.type === PaymentType.CLASSROOM
-                    ? PayoutStatus.PENDING
-                    : null,
-        });
+        return await this.paymentModel
+            .create({
+                ...data,
+                studentId,
+                orderCode: Math.floor(Date.now() / 1000),
+                payoutStatus:
+                    data.type === PaymentType.CLASSROOM
+                        ? PayoutStatus.PENDING
+                        : null,
+            })
+            .then((payment) => payment.dataValues);
+    }
+
+    async updatePayment(id: string, payment: Partial<Payment>) {
+        try {
+            const [updatedCount, updatedPayment] =
+                await this.paymentModel.update(payment, {
+                    where: { id },
+                    returning: true,
+                });
+
+            if (updatedCount === 0) {
+                throw new Error('Payment not found');
+            }
+
+            return updatedPayment[0].dataValues;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error updating payment: ' + error.message,
+            );
+        }
     }
 
     async updatePayout(id: string, payoutStatus: PayoutStatus) {

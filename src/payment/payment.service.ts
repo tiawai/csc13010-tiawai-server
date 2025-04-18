@@ -12,14 +12,12 @@ import {
     PayoutStatus,
 } from './entities/payment.model';
 import PayOS from '@payos/node';
-import { User } from '../users/entities/user.model';
-import { console } from 'inspector';
 import { PaymentVerifyDto } from './dtos/payment-verify.dto';
-import { InjectModel } from '@nestjs/sequelize';
 import { UsersRepository } from 'src/users/users.repository';
 import { PaymentRepository } from './payment.repository';
 import { CreatePaymentDto } from './dtos/create-payment-dto';
 import { CreateBankAccountDto } from './dtos/create-bank-account.dto';
+import { ClassroomStudentRepository } from 'src/classrooms/repositories/classroom-student.repository';
 
 @Injectable()
 export class PaymentService {
@@ -29,6 +27,7 @@ export class PaymentService {
         private readonly configService: ConfigService,
         private readonly userRepository: UsersRepository,
         private readonly paymentRepository: PaymentRepository,
+        private readonly classroomStudentRepository: ClassroomStudentRepository,
     ) {
         this.payos = new PayOS(
             this.configService.get<string>('PAYOS_CLIENT_ID'),
@@ -39,7 +38,11 @@ export class PaymentService {
     }
 
     async getAllPayments() {
-        return this.paymentRepository.findAll();
+        return await this.paymentRepository.findAll();
+    }
+
+    async getStudentPayments(studentId: string) {
+        return await this.paymentRepository.findAllByStudentId(studentId);
     }
 
     async getByOrderCode(orderCode: number) {
@@ -83,29 +86,35 @@ export class PaymentService {
                 cancelUrl: `${this.configService.get('FRONTEND_URL')}/payment/cancel`,
             });
 
-            if (paymentLink) {
-                await payment.update({ paymentLink: paymentLink.checkoutUrl });
-            }
-
-            return payment;
+            return await this.paymentRepository.updatePayment(payment.id, {
+                paymentLink: paymentLink.checkoutUrl,
+            });
         } catch (error) {
             throw new Error(`Failed to create payment: ${error.message}`);
         }
     }
 
     async verifyPayment(paymentVerifyDto: PaymentVerifyDto) {
-        const { orderCode, code } = paymentVerifyDto;
+        const { orderCode, code, status } = paymentVerifyDto;
+        console.log('orderCode', orderCode);
 
         const payment =
             await this.paymentRepository.findOneByOrderCode(orderCode);
+
         if (!payment) {
             throw new NotFoundException('Payment not found');
         }
 
-        if (code != '00') {
+        if (status === 'CANCELLED') {
             await this.payos.cancelPaymentLink(orderCode);
-            await payment.update({ status: PaymentStatus.CANCELLED });
+            await this.paymentRepository.updatePayment(payment.id, {
+                status: PaymentStatus.CANCELLED,
+            });
         } else {
+            if (payment.status === PaymentStatus.SUCCESS) {
+                return payment;
+            }
+
             if (payment.type === PaymentType.BALANCE) {
                 const student = await this.userRepository.findOneById(
                     payment.studentId,
@@ -115,26 +124,42 @@ export class PaymentService {
                     throw new NotFoundException('Student not found');
                 }
 
-                await student.update({
-                    balance: student.balance + payment.amount,
-                });
+                await this.userRepository.updateUserBalance(
+                    payment.studentId,
+                    student.balance + payment.amount,
+                );
             }
 
             if (payment.type === PaymentType.CLASSROOM) {
-                const teacher = await User.findOne({
-                    where: { id: payment.teacherId },
-                });
+                const teacher = await this.userRepository.findOneById(
+                    payment.teacherId,
+                );
 
                 if (!teacher) {
                     throw new NotFoundException('Teacher not found');
                 }
 
-                await teacher.update({
-                    balance: teacher.balance + payment.amount,
-                });
+                console.log(
+                    'teacher.balance',
+                    teacher.balance,
+                    'payment.amount',
+                    payment.amount,
+                );
+
+                await this.userRepository.updateUserBalance(
+                    payment.teacherId,
+                    Math.floor(teacher.balance + payment.amount),
+                );
+
+                await this.classroomStudentRepository.addStudentToClassroom(
+                    payment.classroomId,
+                    payment.studentId,
+                );
             }
 
-            await payment.update({ status: PaymentStatus.SUCCESS });
+            await this.paymentRepository.updatePayment(payment.id, {
+                status: PaymentStatus.SUCCESS,
+            });
         }
 
         return payment;

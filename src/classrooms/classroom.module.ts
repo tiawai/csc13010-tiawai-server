@@ -42,6 +42,6 @@ import { ClassroomStudent } from './entities/classroom-students.model';
         LessonRepository,
         AccessControlService,
     ],
-    exports: [ClassroomService, LessonService],
+    exports: [ClassroomService, LessonService, ClassroomStudentRepository],
 })
 export class ClassroomModule {}

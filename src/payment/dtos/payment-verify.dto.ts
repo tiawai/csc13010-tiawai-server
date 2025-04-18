@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class PaymentVerifyDto {
@@ -34,6 +35,7 @@ export class PaymentVerifyDto {
         description: 'Unique order code associated with the payment',
         example: '123456789',
     })
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     orderCode: number;
 }

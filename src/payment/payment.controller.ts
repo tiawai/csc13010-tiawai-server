@@ -41,8 +41,21 @@ export class PaymentController {
         return this.paymentService.getAllPayments();
     }
 
+    @Get('/student')
+    @Roles(Role.STUDENT)
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @ApiOperation({ summary: 'Get student payments' })
+    @ApiResponse({
+        status: 200,
+        description: 'Student payments retrieved successfully',
+    })
+    async getStudentPayments(@Req() req: RequestWithUser) {
+        return this.paymentService.getStudentPayments(req.user.id);
+    }
+
     @Post()
     @Roles(Role.STUDENT)
+    @UseGuards(ATAuthGuard, RolesGuard)
     @ApiOperation({ summary: 'Create a payment' })
     @ApiResponse({ status: 201, description: 'Payment created successfully' })
     async createPayment(
@@ -54,6 +67,7 @@ export class PaymentController {
 
     @Post('verify')
     @Roles(Role.STUDENT)
+    @UseGuards(ATAuthGuard, RolesGuard)
     @ApiOperation({ summary: 'Verify PayOS payment' })
     @ApiResponse({ status: 200, description: 'Payment verified successfully' })
     async verifyPayment(@Body() body: PaymentVerifyDto) {

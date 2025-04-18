@@ -9,6 +9,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AccessControlModule } from '../ac/ac.module';
 import { UsersModule } from '../users/users.module';
 import { BankAccount } from './entities/bank-account.model';
+import { ClassroomModule } from 'src/classrooms/classroom.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { BankAccount } from './entities/bank-account.model';
         ScheduleModule.forRoot(),
         AccessControlModule,
         UsersModule,
+        ClassroomModule,
     ],
     controllers: [PaymentController],
     providers: [PaymentService, PaymentRepository],

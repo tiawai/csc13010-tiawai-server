@@ -61,13 +61,13 @@ export class Payment extends Model {
     classroomId: string;
 
     @Column({
-        type: DataType.DECIMAL(10, 2),
+        type: DataType.INTEGER,
         allowNull: false,
     })
     amount: number;
 
     @Column({
-        type: DataType.BIGINT,
+        type: DataType.INTEGER,
         allowNull: false,
         unique: true,
     })
