@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class PaymentVerifyDto {
     @ApiProperty({
@@ -32,9 +32,8 @@ export class PaymentVerifyDto {
 
     @ApiProperty({
         description: 'Unique order code associated with the payment',
-        example: 'ORD20240328XYZ',
+        example: '123456789',
     })
-    @IsString()
-    @IsNotEmpty()
-    orderCode: string;
+    @IsNumber()
+    orderCode: number;
 }

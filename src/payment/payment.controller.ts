@@ -14,8 +14,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/roles.enum';
 import { Request } from 'express';
-import { PaymentType } from './entities/payment.model';
 import { PaymentVerifyDto } from './dtos/payment-verify.dto';
+import { CreatePaymentDto } from './dtos/create-payment-dto';
 
 interface RequestWithUser extends Request {
     user: {
@@ -23,13 +23,13 @@ interface RequestWithUser extends Request {
     };
 }
 @Controller('payments')
-@UseGuards(ATAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class PaymentController {
     constructor(private readonly paymentService: PaymentService) {}
 
     @Get()
     @Roles(Role.ADMIN)
+    @UseGuards(ATAuthGuard, RolesGuard)
     @ApiOperation({ summary: 'Get all payments' })
     @ApiResponse({
         status: 200,
@@ -45,18 +45,9 @@ export class PaymentController {
     @ApiResponse({ status: 201, description: 'Payment created successfully' })
     async createPayment(
         @Req() req: RequestWithUser,
-        @Body()
-        data: {
-            type: PaymentType;
-            amount: number;
-            classroomId?: string;
-            teacherId?: string;
-        },
+        @Body() body: CreatePaymentDto,
     ) {
-        return this.paymentService.createPayment({
-            ...data,
-            studentId: req.user.id,
-        });
+        return this.paymentService.createPayment(req.user.id, body);
     }
 
     @Post('verify')
@@ -67,6 +58,15 @@ export class PaymentController {
         return this.paymentService.verifyPayment(body);
     }
 
+    @Get('payout')
+    @Roles(Role.ADMIN)
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @ApiOperation({ summary: 'Payout to teacher' })
+    @ApiResponse({ status: 200, description: 'Payout processed successfully' })
+    async getPayout() {
+        return this.paymentService.getPayout();
+    }
+
     @Post('webhook')
     @ApiOperation({ summary: 'Receive PayOS webhook' })
     @ApiResponse({ status: 200, description: 'Webhook received successfully' })
@@ -75,10 +75,10 @@ export class PaymentController {
         //  return { success: true };
     }
 
-    @Get(':id')
-    @ApiOperation({ summary: 'Get payment by orderId' })
+    @Get(':orderCode')
+    @ApiOperation({ summary: 'Get payment by orderCode' })
     @ApiResponse({ status: 200, description: 'Payment retrieved successfully' })
-    async getPayment(@Param('id') orderId: string) {
-        return this.paymentService.getPayment(orderId);
+    async getByOrderCode(@Param('orderCode') orderCode: string) {
+        return this.paymentService.getByOrderCode(+orderCode);
     }
 }

@@ -34,6 +34,8 @@ export class Payment extends Model {
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4,
         primaryKey: true,
+        allowNull: false,
+        unique: true,
     })
     declare id: string;
 
@@ -47,13 +49,13 @@ export class Payment extends Model {
     @ForeignKey(() => User)
     @Column({
         type: DataType.UUID,
-        allowNull: true, // Null for BALANCE type payments
+        allowNull: true,
     })
     teacherId: string;
 
     @Column({
         type: DataType.UUID,
-        allowNull: true, // Null for BALANCE type payments
+        allowNull: true,
     })
     classroomId: string;
 

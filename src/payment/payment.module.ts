@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import { PaymentRepository } from './payment.repository';
 import { PaymentController } from './payment.controller';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -17,7 +18,7 @@ import { UsersModule } from '../users/users.module';
         UsersModule,
     ],
     controllers: [PaymentController],
-    providers: [PaymentService],
-    exports: [PaymentService],
+    providers: [PaymentService, PaymentRepository],
+    exports: [PaymentService, PaymentRepository],
 })
 export class PaymentModule {}

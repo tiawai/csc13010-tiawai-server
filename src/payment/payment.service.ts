@@ -14,12 +14,20 @@ import PayOS from '@payos/node';
 import { User } from '../users/entities/user.model';
 import { console } from 'inspector';
 import { PaymentVerifyDto } from './dtos/payment-verify.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { UsersRepository } from 'src/users/users.repository';
+import { PaymentRepository } from './payment.repository';
+import { CreatePaymentDto } from './dtos/create-payment-dto';
 
 @Injectable()
 export class PaymentService {
     private payos: PayOS;
 
-    constructor(private readonly configService: ConfigService) {
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly userRepository: UsersRepository,
+        private readonly paymentRepository: PaymentRepository,
+    ) {
         this.payos = new PayOS(
             this.configService.get<string>('PAYOS_CLIENT_ID'),
             this.configService.get<string>('PAYOS_API_KEY'),
@@ -29,90 +37,28 @@ export class PaymentService {
     }
 
     async getAllPayments() {
-        return Payment.findAll();
+        return this.paymentRepository.findAll();
     }
 
-    async receiveWebhook(body: any) {
-        const webhookData = this.payos.verifyPaymentWebhookData(body);
-        if (!webhookData) {
-            throw new BadRequestException('Invalid webhook data');
-        }
-        console.log('webhookData', webhookData);
-
-        try {
-            const { orderCode, code, amount } = webhookData;
-            if (orderCode === 123) {
-                return { success: true };
-            }
-
-            const payment = await Payment.findOne({ where: { orderCode } });
-            if (!payment) {
-                throw new NotFoundException('Payment not found');
-            }
-
-            // Update payment status based on webhook data
-            if (code != '00' || amount != payment.amount) {
-                console.log('if code != 00 || amount != payment.amount');
-                await this.payos.cancelPaymentLink(orderCode);
-                await payment.update({ status: PaymentStatus.CANCELLED });
-                throw new Error(`Payment failed with code: ${code}`);
-            }
-
-            if (payment.type === PaymentType.BALANCE) {
-                console.log('if payment.type === PaymentType.BALANCE');
-                const user = await User.findOne({
-                    where: { id: payment.studentId },
-                });
-
-                if (!user) {
-                    console.log('if !user');
-                    throw new NotFoundException('User not found');
-                }
-
-                await user.update({ balance: user.balance + payment.amount });
-            }
-
-            await payment.update({ status: PaymentStatus.SUCCESS });
-            console.log('payment', payment);
-        } catch (error) {
-            throw new Error(`Failed to create payment: ${error.message}`);
-        }
-
-        return { success: true };
-    }
-
-    async getPayment(orderId: string) {
-        const payment = await Payment.findOne({ where: { orderId } });
+    async getByOrderCode(orderCode: number) {
+        const payment =
+            await this.paymentRepository.findOneByOrderCode(orderCode);
         if (!payment) {
             throw new NotFoundException('Payment not found');
         }
         return payment;
     }
 
-    async createPayment(data: {
-        studentId: string;
-        type: PaymentType;
-        amount: number;
-        classroomId?: string;
-        teacherId?: string;
-    }) {
+    async createPayment(studentId: string, data: CreatePaymentDto) {
         if (!(data.type in PaymentType)) {
             throw new BadRequestException('Invalid payment type');
         }
 
         try {
-            const orderCode = Date.now();
-
-            // create payment model
-            const payment = await Payment.create({
-                ...data,
-                orderCode,
-                status: PaymentStatus.PENDING,
-                payoutStatus:
-                    data.type === PaymentType.CLASSROOM
-                        ? PayoutStatus.PENDING
-                        : null,
-            });
+            const payment = await this.paymentRepository.createPayment(
+                studentId,
+                data,
+            );
 
             const paymentTypeContent: Record<
                 PaymentType,
@@ -128,7 +74,7 @@ export class PaymentService {
 
             // [PayOS] create payment link
             const paymentLink = await this.payos.createPaymentLink({
-                orderCode,
+                orderCode: payment.orderCode,
                 amount: data.amount,
                 description: paymentTypeContent[data.type].description,
                 returnUrl: `${this.configService.get('FRONTEND_URL')}/payment/success`,
@@ -148,7 +94,8 @@ export class PaymentService {
     async verifyPayment(paymentVerifyDto: PaymentVerifyDto) {
         const { orderCode, code } = paymentVerifyDto;
 
-        const payment = await Payment.findOne({ where: { orderCode } });
+        const payment =
+            await this.paymentRepository.findOneByOrderCode(orderCode);
         if (!payment) {
             throw new NotFoundException('Payment not found');
         }
@@ -158,9 +105,9 @@ export class PaymentService {
             await payment.update({ status: PaymentStatus.CANCELLED });
         } else {
             if (payment.type === PaymentType.BALANCE) {
-                const student = await User.findOne({
-                    where: { id: payment.studentId },
-                });
+                const student = await this.userRepository.findOneById(
+                    payment.studentId,
+                );
 
                 if (!student) {
                     throw new NotFoundException('Student not found');
@@ -189,5 +136,57 @@ export class PaymentService {
         }
 
         return payment;
+    }
+
+    async getPayout() {
+        try {
+            return this.paymentRepository.findAllPayoutPending();
+        } catch (error) {
+            throw new Error(`Failed to get payout: ${error.message}`);
+        }
+    }
+
+    async receiveWebhook(body: any) {
+        const webhookData = this.payos.verifyPaymentWebhookData(body);
+        if (!webhookData) {
+            throw new BadRequestException('Invalid webhook data');
+        }
+
+        try {
+            const { orderCode, code, amount } = webhookData;
+            if (orderCode === 123) {
+                return { success: true };
+            }
+
+            const payment =
+                await this.paymentRepository.findOneByOrderCode(orderCode);
+            if (!payment) {
+                throw new NotFoundException('Payment not found');
+            }
+
+            if (code != '00' || amount != payment.amount) {
+                await this.payos.cancelPaymentLink(orderCode);
+                await payment.update({ status: PaymentStatus.CANCELLED });
+                throw new Error(`Payment failed with code: ${code}`);
+            }
+
+            if (payment.type === PaymentType.BALANCE) {
+                const user = await this.userRepository.findOneById(
+                    payment.studentId,
+                );
+
+                if (!user) {
+                    throw new NotFoundException('User not found');
+                }
+
+                await user.update({ balance: user.balance + payment.amount });
+            }
+
+            await payment.update({ status: PaymentStatus.SUCCESS });
+        } catch (error) {
+            throw new Error(`Failed to create payment: ${error.message}`);
+        }
+
+        return { success: true };
     }
 }
