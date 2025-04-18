@@ -221,7 +221,7 @@ export class ClassroomController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Delete a classroom [TEACHER]' })
+    @ApiOperation({ summary: 'Delete a classroom [TEACHER, ADMIN]' })
     @ApiParam({ name: 'id', description: 'Classroom ID' })
     @ApiResponse({
         status: 200,
@@ -232,7 +232,7 @@ export class ClassroomController {
         description: 'Classroom not found',
     })
     @UseGuards(RolesGuard)
-    @Roles(Role.TEACHER)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async remove(@Param('id') id: string, @Request() req) {
         const classrooms = await this.classroomService.findByTeacher(
             req.user.id,
