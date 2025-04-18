@@ -103,14 +103,14 @@ export class ClassroomController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Get all classrooms [ADMIN]' })
+    @ApiOperation({ summary: 'Get all classrooms [ADMIN, STUDENT]' })
     @ApiResponse({
         status: 200,
         description: 'Return all classrooms',
         type: [Classroom],
     })
     @UseGuards(RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.ADMIN, Role.STUDENT)
     findAll() {
         return this.classroomService.findAll();
     }

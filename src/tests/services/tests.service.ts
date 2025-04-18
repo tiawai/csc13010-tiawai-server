@@ -13,6 +13,7 @@ import { SubmissionsRepository } from '../repositories/submissions.repository';
 import { AnswerRepository } from '../repositories/answer.repository';
 import { TestType } from '../enums/test-type.enum';
 import { AnswerSheetDto } from '../dtos/create-answer.dto';
+import { ClassroomTestsRepository } from '../repositories/classroom-test.repository';
 @Injectable()
 export class TestsService {
     constructor(
@@ -20,6 +21,7 @@ export class TestsService {
         private readonly questionsService: QuestionsService,
         private readonly submissionsRepository: SubmissionsRepository,
         private readonly answerRepository: AnswerRepository,
+        private readonly classroomTestsRepository: ClassroomTestsRepository,
     ) {}
 
     async getAllTests(): Promise<Test[]> {
@@ -182,5 +184,44 @@ export class TestsService {
             throw new NotFoundException('No tests found');
         }
         return tests;
+    }
+
+    async createClassroomTest(
+        classroomId: string,
+        testId: string,
+    ): Promise<{ classroomId: string; testId: string }> {
+        const classroomTest =
+            await this.classroomTestsRepository.createClassroomTest(
+                classroomId,
+                testId,
+            );
+
+        if (!classroomTest) {
+            throw new InternalServerErrorException(
+                'Error occurs when creating classroom test',
+            );
+        }
+
+        return {
+            classroomId: classroomTest.classroomId,
+            testId: classroomTest.testId,
+        };
+    }
+
+    async getTestsByClassroomId(classroomId: string): Promise<Test[]> {
+        const tests =
+            await this.classroomTestsRepository.findByClassroomId(classroomId);
+
+        if (!tests) {
+            throw new NotFoundException('No tests found');
+        }
+
+        const testPromises = tests.map(async (test) => {
+            const testData = await this.getTestById(test.testId);
+            return testData;
+        });
+
+        const res = await Promise.all(testPromises);
+        return res.map((test) => test.test);
     }
 }

@@ -54,7 +54,7 @@ export class TestsController {
         type: [Test],
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async getAllTests() {
         return this.testsService.getAllTests();
     }
@@ -121,7 +121,7 @@ export class TestsController {
         type: CreateTestResponseDto,
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createTest(
         @Request() req: any,
         @Body()
@@ -156,7 +156,7 @@ export class TestsController {
         type: CreateTestResponseDto,
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createToeicListeningTest(
         @Request() req: any,
         @Query('audioUrl') audioUrl: string,
@@ -212,7 +212,7 @@ export class TestsController {
     })
     @Post('admin/toeic-listening-test/audio')
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     @UseInterceptors(FileInterceptor('audio'))
     async uploadAudio(@UploadedFile() file: Multer.File) {
         const audioUrl = await this.uploadService.uploadAudio(file);
@@ -264,7 +264,7 @@ export class TestsController {
         },
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     @UseInterceptors(
         FilesInterceptor('images', 20, {
             fileFilter: (req, file, cb) => {
@@ -339,7 +339,7 @@ export class TestsController {
         },
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createFirstPartQuestions(
         @Query('testId') testId: string,
         @Body() updateDto: UpdateToeicQuestionsDto,
@@ -394,7 +394,7 @@ export class TestsController {
         },
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createSecondPartQuestions(
         @Query('testId') testId: string,
         @Body() updateDto: UpdateToeicQuestionsDto,
@@ -439,7 +439,7 @@ export class TestsController {
         description: 'Questions part 3 created successfully',
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createThirdPartQuestions(
         @Query('testId') testId: string,
         @Query('hasImages', ParseBoolPipe) hasImages: boolean,
@@ -493,7 +493,7 @@ export class TestsController {
         description: 'Questions part 4 created successfully',
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createFourthPartQuestions(
         @Query('testId') testId: string,
         @Query('hasImages', ParseBoolPipe) hasImages: boolean,
@@ -535,7 +535,7 @@ export class TestsController {
         type: CreateTestResponseDto,
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createToeicReadingTest(
         @Request() req: any,
         @Body() createTestDto: CreateTestDto,
@@ -603,7 +603,7 @@ export class TestsController {
         },
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     @UseInterceptors(
         FilesInterceptor('images', 20, {
             fileFilter: (req, file, cb) => {
@@ -678,7 +678,7 @@ export class TestsController {
         },
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createFirstPartQuestionsForToeicReadingTest(
         @Query('testId') testId: string,
         @Body() updateDto: UpdateToeicQuestionsDto,
@@ -724,7 +724,7 @@ export class TestsController {
         description: 'Questions part 2 created successfully',
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createSecondPartQuestionsForToeicReadingTest(
         @Query('testId') testId: string,
         @Query('hasImages', ParseBoolPipe) hasImages: boolean,
@@ -777,7 +777,7 @@ export class TestsController {
         description: 'Questions part 2 created successfully',
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(Role.TEACHER, Role.ADMIN)
     async createThirdPartQuestionsForToeicReadingTest(
         @Query('testId') testId: string,
         @Query('hasImages', ParseBoolPipe) hasImages: boolean,
@@ -824,5 +824,135 @@ export class TestsController {
     })
     async getTestsByType(@Query('type') type: TestType) {
         return this.testsService.getTestsByType(type);
+    }
+
+    // create national test teacher
+    @ApiOperation({ summary: 'Create a new national test [TEACHER]' })
+    @ApiBearerAuth('access-token')
+    @Post('teacher/national-test/:classroomId')
+    @ApiResponse({
+        status: 201,
+        description: 'Test created successfully',
+        type: CreateTestResponseDto,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async createNationalTestForTeacher(
+        @Request() req: any,
+        @Param('classroomId') classroomId: string,
+        @Body()
+        createNationalTestWithQuestions: CreateNationalTestWithQuestionsDto,
+    ) {
+        createNationalTestWithQuestions.test.type = TestType.NATIONAL_TEST;
+        const test = await this.testsService.createNationalTest(
+            createNationalTestWithQuestions.test,
+            createNationalTestWithQuestions.questions,
+            req.user.id,
+        );
+
+        await this.testsService.createClassroomTest(classroomId, test.id);
+
+        const result = {
+            id: test.id,
+            title: test.title,
+            type: test.type,
+            startDate: test.startDate,
+            endDate: test.endDate,
+            totalQuestions: test.totalQuestions,
+            timeLength: test.timeLength,
+        };
+
+        return result;
+    }
+
+    // create toeic listening test teacher
+    @ApiOperation({ summary: 'Create a new TOEIC listening test [TEACHER]' })
+    @ApiBearerAuth('access-token')
+    @Post('teacher/toeic-listening-test/:classroomId')
+    @ApiResponse({
+        status: 201,
+        description: 'Test created successfully',
+        type: CreateTestResponseDto,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async createToeicListeningTestForTeacher(
+        @Request() req: any,
+        @Param('classroomId') classroomId: string,
+        @Query('audioUrl') audioUrl: string,
+        @Body()
+        createTestDto: CreateTestDto,
+    ) {
+        createTestDto.type = TestType.TOEIC_LISTENING;
+        const test = await this.testsService.createToeicListeningTest(
+            createTestDto,
+            req.user.id,
+            audioUrl,
+        );
+
+        await this.testsService.createClassroomTest(classroomId, test.id);
+
+        const result = {
+            id: test.id,
+            title: test.title,
+            type: test.type,
+            startDate: test.startDate,
+            endDate: test.endDate,
+            totalQuestions: test.totalQuestions,
+            timeLength: test.timeLength,
+        };
+
+        return result;
+    }
+
+    // create toeic reading test teacher
+    @ApiOperation({ summary: 'Create a new TOEIC reading test [TEACHER]' })
+    @ApiBearerAuth('access-token')
+    @Post('teacher/toeic-reading-test/:classroomId')
+    @ApiResponse({
+        status: 201,
+        description: 'Test created successfully',
+        type: CreateTestResponseDto,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async createToeicReadingTestForTeacher(
+        @Request() req: any,
+        @Param('classroomId') classroomId: string,
+        @Body() createTestDto: CreateTestDto,
+    ) {
+        createTestDto.type = TestType.TOEIC_READING;
+        const test = await this.testsService.createToeicReadingTest(
+            createTestDto,
+            req.user.id,
+        );
+
+        await this.testsService.createClassroomTest(classroomId, test.id);
+
+        const result = {
+            id: test.id,
+            title: test.title,
+            type: test.type,
+            startDate: test.startDate,
+            endDate: test.endDate,
+            totalQuestions: test.totalQuestions,
+            timeLength: test.timeLength,
+        };
+
+        return result;
+    }
+
+    @ApiOperation({ summary: 'Get tests by classroom ID [TEACHER]' })
+    @ApiBearerAuth('access-token')
+    @Get('teacher/classroom/:classroomId')
+    @ApiResponse({
+        status: 200,
+        description: 'Tests retrieved successfully',
+        type: [Test],
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async getTestsByClassroomId(@Param('classroomId') classroomId: string) {
+        return this.testsService.getTestsByClassroomId(classroomId);
     }
 }
