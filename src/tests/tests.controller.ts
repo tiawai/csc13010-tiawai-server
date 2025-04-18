@@ -942,16 +942,16 @@ export class TestsController {
         return result;
     }
 
-    @ApiOperation({ summary: 'Get tests by classroom ID [TEACHER]' })
+    @ApiOperation({ summary: 'Get tests by classroom ID [TEACHER, STUDENT]' })
     @ApiBearerAuth('access-token')
-    @Get('teacher/classroom/:classroomId')
+    @Get('classroom/:classroomId')
     @ApiResponse({
         status: 200,
         description: 'Tests retrieved successfully',
         type: [Test],
     })
     @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.TEACHER)
+    @Roles(Role.TEACHER, Role.STUDENT)
     async getTestsByClassroomId(@Param('classroomId') classroomId: string) {
         return this.testsService.getTestsByClassroomId(classroomId);
     }
