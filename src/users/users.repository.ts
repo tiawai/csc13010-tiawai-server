@@ -275,4 +275,24 @@ export class UsersRepository {
             throw new InternalServerErrorException((error as Error).message);
         }
     }
+
+    async updateUserBalance(id: string, amount: number): Promise<User> {
+        try {
+            const [updatedCount, updatedUsers] = await this.userModel.update(
+                { balance: amount },
+                {
+                    where: { id },
+                    returning: true,
+                },
+            );
+
+            if (updatedCount === 0) {
+                throw new NotFoundException(`User with id ${id} not found`);
+            }
+
+            return updatedUsers[0].dataValues as User;
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
 }

@@ -21,6 +21,7 @@ export enum PaymentType {
 
 export enum PayoutStatus {
     PENDING = 'PENDING',
+    IN_PROGRESS = 'IN_PROGRESS',
     SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
 }

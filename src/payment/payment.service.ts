@@ -2,6 +2,7 @@ import {
     Injectable,
     NotFoundException,
     BadRequestException,
+    InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -18,6 +19,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { UsersRepository } from 'src/users/users.repository';
 import { PaymentRepository } from './payment.repository';
 import { CreatePaymentDto } from './dtos/create-payment-dto';
+import { CreateBankAccountDto } from './dtos/create-bank-account.dto';
 
 @Injectable()
 export class PaymentService {
@@ -140,9 +142,150 @@ export class PaymentService {
 
     async getPayout() {
         try {
-            return this.paymentRepository.findAllPayoutPending();
+            const payments = await this.paymentRepository.findAllPayout(
+                PayoutStatus.PENDING,
+            );
+
+            const groupedByTeacher = payments.reduce(
+                (acc, payment) => {
+                    const teacherId = payment.teacherId;
+
+                    if (!teacherId) return acc;
+
+                    if (!acc[teacherId]) {
+                        acc[teacherId] = {
+                            teacherId: teacherId,
+                            totalAmount: 0,
+                            payments: [],
+                        };
+                    }
+
+                    acc[teacherId].totalAmount += parseFloat(
+                        payment.amount.toString(),
+                    );
+                    acc[teacherId].payments.push(payment);
+
+                    return acc;
+                },
+                {} as Record<
+                    string,
+                    {
+                        teacherId: string;
+                        totalAmount: number;
+                        payments: Payment[];
+                    }
+                >,
+            );
+
+            const result = Object.values(groupedByTeacher);
+
+            const payouts = await Promise.all(
+                result.map(async (teacher) => {
+                    const bankAccount =
+                        await this.paymentRepository.findBankAccountByUserId(
+                            teacher.teacherId,
+                        );
+
+                    if (!bankAccount) {
+                        return null;
+                    }
+
+                    return {
+                        accountNumber: bankAccount.accountNumber,
+                        accountHolderName: bankAccount.accountHolderName,
+                        bankName: bankAccount.bankName,
+                        amount: teacher.totalAmount,
+                        message: `Payout for teacher ${bankAccount.accountHolderName}`,
+                    };
+                }),
+            );
+
+            return {
+                payouts: payouts.filter(Boolean),
+                payments: result.flatMap((teacher) =>
+                    teacher.payments.map((payment) => payment.id),
+                ),
+            };
         } catch (error) {
             throw new Error(`Failed to get payout: ${error.message}`);
+        }
+    }
+
+    async processPayout(payments: string[]) {
+        try {
+            return await Promise.all(
+                payments.map(async (payment) => {
+                    await this.paymentRepository.updatePayout(
+                        payment,
+                        PayoutStatus.IN_PROGRESS,
+                    );
+                }),
+            );
+        } catch (error) {
+            throw new Error(`Failed to process payout: ${error.message}`);
+        }
+    }
+
+    async updatePayoutSuccess() {
+        try {
+            const payments = await this.paymentRepository.findAllPayout(
+                PayoutStatus.IN_PROGRESS,
+            );
+            return await Promise.all(
+                payments.map(async (payment) => {
+                    const user = await this.userRepository.findOneById(
+                        payment.teacherId,
+                    );
+                    if (!user) {
+                        throw new NotFoundException('User not found');
+                    }
+                    await this.paymentRepository.updatePayout(
+                        payment.id,
+                        PayoutStatus.SUCCESS,
+                    );
+                    await this.userRepository.updateUserBalance(
+                        payment.teacherId,
+                        user.balance - payment.amount,
+                    );
+                }),
+            );
+        } catch (error) {
+            throw new Error(`Failed to update payout: ${error.message}`);
+        }
+    }
+
+    async getBankAccount(userId: string) {
+        try {
+            const bankAccount =
+                await this.paymentRepository.findBankAccountByUserId(userId);
+            if (!bankAccount) {
+                return await this.paymentRepository.createBankAccount(userId);
+            }
+            return bankAccount;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Failed to get bank account: ${error.message}`,
+            );
+        }
+    }
+
+    async createBankAccount(userId: string, data: CreateBankAccountDto) {
+        try {
+            return await this.paymentRepository.createBankAccount(userId, data);
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Failed to create bank account: ${error.message}`,
+            );
+        }
+    }
+
+    async updateBankAccount(userId: string, data: CreateBankAccountDto) {
+        try {
+            return await this.paymentRepository.updateBankAccount(userId, data);
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Failed to update bank account: ${error.message}`,
+            );
         }
     }
 

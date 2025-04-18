@@ -8,11 +8,12 @@ import { Payment } from './entities/payment.model';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AccessControlModule } from '../ac/ac.module';
 import { UsersModule } from '../users/users.module';
+import { BankAccount } from './entities/bank-account.model';
 
 @Module({
     imports: [
         ConfigModule,
-        SequelizeModule.forFeature([Payment]),
+        SequelizeModule.forFeature([Payment, BankAccount]),
         ScheduleModule.forRoot(),
         AccessControlModule,
         UsersModule,
