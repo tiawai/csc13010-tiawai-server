@@ -62,7 +62,7 @@ export class TestsService {
             if (question.correctAnswer === answer.answer) {
                 score = score + Number(question.points);
                 correctAnswers = correctAnswers + 1;
-            } else {
+            } else if (answer.answer !== null || answer.answer !== undefined) {
                 incorrectAnswers = incorrectAnswers + 1;
             }
         }
