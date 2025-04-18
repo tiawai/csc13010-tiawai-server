@@ -180,7 +180,7 @@ export class PaymentService {
             const result = Object.values(groupedByTeacher);
 
             const payouts = await Promise.all(
-                result.map(async (teacher) => {
+                result.map(async (teacher, index) => {
                     const bankAccount =
                         await this.paymentRepository.findBankAccountByUserId(
                             teacher.teacherId,
@@ -191,6 +191,7 @@ export class PaymentService {
                     }
 
                     return {
+                        index: index + 1,
                         accountNumber: bankAccount.accountNumber,
                         accountHolderName: bankAccount.accountHolderName,
                         bankName: bankAccount.bankName,
