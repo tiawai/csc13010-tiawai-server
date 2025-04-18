@@ -12,6 +12,7 @@ import { ClassroomRepository } from '../repositories/classroom.repository';
 import { ClassroomRatingRepository } from '../repositories/classroom-rating.repository';
 import { ClassroomStudentRepository } from '../repositories/classroom-student.repository';
 import { ClassroomStudent } from '../entities/classroom-students.model';
+import { StudentInfoDto } from '../dtos/student-info.dto';
 
 @Injectable()
 export class ClassroomService {
@@ -174,7 +175,7 @@ export class ClassroomService {
     async getStudentsByClassroom(
         classId: string,
         teacherId: string,
-    ): Promise<ClassroomStudent[]> {
+    ): Promise<StudentInfoDto[]> {
         // Verify the teacher owns this classroom
         const classrooms = await this.findByTeacher(teacherId);
         const isOwner = classrooms.some(

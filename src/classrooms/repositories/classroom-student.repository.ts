@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { ClassroomStudent } from '../entities/classroom-students.model';
 import { Classroom } from '../entities/classroom.model';
 import { v4 as uuidv4 } from 'uuid';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class ClassroomStudentRepository {
@@ -15,6 +16,7 @@ export class ClassroomStudentRepository {
         private classroomStudentModel: typeof ClassroomStudent,
         @InjectModel(Classroom)
         private classroomModel: typeof Classroom,
+        private sequelize: Sequelize,
     ) {}
 
     async addStudentToClassroom(
@@ -49,12 +51,23 @@ export class ClassroomStudentRepository {
         });
     }
 
-    async getStudentsByClassroom(classId: string): Promise<ClassroomStudent[]> {
-        return this.classroomStudentModel.findAll({
-            where: {
-                classId,
-            },
+    async getStudentsByClassroom(classId: string): Promise<any[]> {
+        const query = `
+            SELECT a.id,
+                   a.username,
+                   a.email,
+                   a."profileImage"
+            FROM classroom_students cs
+            JOIN accounts a ON cs."userId" = a.id
+            WHERE cs."classId" = :classId
+        `;
+
+        const students = await this.sequelize.query(query, {
+            replacements: { classId },
+            type: 'SELECT',
         });
+
+        return students;
     }
 
     async getClassroomsByStudent(

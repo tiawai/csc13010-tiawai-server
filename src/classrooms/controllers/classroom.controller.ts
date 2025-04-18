@@ -34,6 +34,7 @@ import { Role } from '../../auth/enums/roles.enum';
 import { UploadService } from '../../uploader/upload.service';
 import { AddStudentDto } from '../dtos/add-student.dto';
 import { ClassroomStudent } from '../entities/classroom-students.model';
+import { StudentInfoDto } from '../dtos/student-info.dto';
 
 @ApiTags('Classrooms')
 @Controller('classrooms')
@@ -321,8 +322,8 @@ export class ClassroomController {
     @ApiParam({ name: 'id', description: 'Classroom ID' })
     @ApiResponse({
         status: 200,
-        description: 'Returns list of students in the classroom',
-        type: [ClassroomStudent],
+        description: 'Returns list of students with their information',
+        type: [StudentInfoDto],
     })
     @ApiResponse({
         status: 403,
