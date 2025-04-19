@@ -137,7 +137,6 @@ graph LR
   ScheduleModule-->DiscoveryModule
   ScheduleModule-->MailerCoreModule
   ScheduleModule-->RedisCoreModule
-  ScheduleModule-->ScheduleModule
   ScheduleModule-->SequelizeCoreModule
   SequelizeCoreModule-->ConfigHostModule
   SequelizeCoreModule-->ConfigModule
@@ -150,6 +149,7 @@ graph LR
   SequelizeModule-->RedisCoreModule
   SequelizeModule-->ScheduleModule
   SequelizeModule-->SequelizeCoreModule
+  TestsModule-->ClassroomModule
   TestsModule-->ConfigHostModule
   TestsModule-->ConfigModule
   TestsModule-->MailerCoreModule

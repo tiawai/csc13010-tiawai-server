@@ -952,7 +952,10 @@ export class TestsController {
     })
     @UseGuards(ATAuthGuard, RolesGuard)
     @Roles(Role.TEACHER, Role.STUDENT)
-    async getTestsByClassroomId(@Param('classroomId') classroomId: string) {
-        return this.testsService.getTestsByClassroomId(classroomId);
+    async getTestsByClassroomId(
+        @Request() req: any,
+        @Param('classroomId') classroomId: string,
+    ) {
+        return this.testsService.getTestsByClassroomId(classroomId, req.user);
     }
 }

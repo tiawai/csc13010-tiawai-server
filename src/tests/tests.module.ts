@@ -17,6 +17,7 @@ import { AccessControlService } from '../ac/ac.service';
 import { UploadService } from '../uploader/upload.service';
 import { ClassroomTests } from './entities/classroom-tests.model';
 import { ClassroomTestsRepository } from './repositories/classroom-test.repository';
+import { ClassroomModule } from 'src/classrooms/classroom.module';
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { ClassroomTestsRepository } from './repositories/classroom-test.reposito
             Answer,
             ClassroomTests,
         ]),
+        ClassroomModule,
     ],
     controllers: [TestsController],
     providers: [

@@ -1,4 +1,5 @@
 import {
+    ForbiddenException,
     Injectable,
     InternalServerErrorException,
     NotFoundException,
@@ -14,6 +15,9 @@ import { AnswerRepository } from '../repositories/answer.repository';
 import { TestType } from '../enums/test-type.enum';
 import { AnswerSheetDto } from '../dtos/create-answer.dto';
 import { ClassroomTestsRepository } from '../repositories/classroom-test.repository';
+import { User } from 'src/users/entities/user.model';
+import { Role } from 'src/auth/enums/roles.enum';
+import { ClassroomStudentRepository } from 'src/classrooms/repositories/classroom-student.repository';
 @Injectable()
 export class TestsService {
     constructor(
@@ -22,6 +26,7 @@ export class TestsService {
         private readonly submissionsRepository: SubmissionsRepository,
         private readonly answerRepository: AnswerRepository,
         private readonly classroomTestsRepository: ClassroomTestsRepository,
+        private readonly classroomStudentRepository: ClassroomStudentRepository,
     ) {}
 
     async getAllTests(): Promise<Test[]> {
@@ -208,7 +213,23 @@ export class TestsService {
         };
     }
 
-    async getTestsByClassroomId(classroomId: string): Promise<Test[]> {
+    async getTestsByClassroomId(
+        classroomId: string,
+        user: User,
+    ): Promise<Test[]> {
+        if (user.role === Role.STUDENT) {
+            const isEnrolled = await this.classroomStudentRepository.isEnrolled(
+                classroomId,
+                user.id,
+            );
+
+            if (!isEnrolled) {
+                throw new ForbiddenException(
+                    'You do not have permission to access this classroom',
+                );
+            }
+        }
+
         const tests =
             await this.classroomTestsRepository.findByClassroomId(classroomId);
 

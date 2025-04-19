@@ -144,8 +144,8 @@ export class ClassroomController {
         status: 404,
         description: 'Classroom not found',
     })
-    findOne(@Param('id') id: string) {
-        return this.classroomService.findOne(id);
+    findOne(@Request() req, @Param('id') id: string) {
+        return this.classroomService.findOne(id, req.user);
     }
 
     @Patch(':id')

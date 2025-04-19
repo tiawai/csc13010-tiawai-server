@@ -93,4 +93,15 @@ export class ClassroomStudentRepository {
 
         return result > 0;
     }
+
+    async isEnrolled(classId: string, studentId: string): Promise<boolean> {
+        const result = await this.classroomStudentModel.findOne({
+            where: {
+                classId,
+                userId: studentId,
+            },
+        });
+
+        return !!result;
+    }
 }

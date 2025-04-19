@@ -102,8 +102,8 @@ export class LessonController {
         description: 'Return all lessons, optionally filtered by classroom',
         type: [Lesson],
     })
-    findAll(@Query('classId') classId: string) {
-        return this.lessonService.findAll(classId);
+    findAll(@Request() req, @Query('classId') classId: string) {
+        return this.lessonService.findAll(classId, req.user);
     }
 
     @Get(':id')
@@ -120,8 +120,8 @@ export class LessonController {
         status: 404,
         description: 'Lesson not found',
     })
-    findOne(@Param('id') id: string) {
-        return this.lessonService.findOne(id);
+    findOne(@Request() req, @Param('id') id: string) {
+        return this.lessonService.findOne(id, req.user);
     }
 
     @Patch(':id')

@@ -13,6 +13,8 @@ import { ClassroomRatingRepository } from '../repositories/classroom-rating.repo
 import { ClassroomStudentRepository } from '../repositories/classroom-student.repository';
 import { ClassroomStudent } from '../entities/classroom-students.model';
 import { StudentInfoDto } from '../dtos/student-info.dto';
+import { User } from 'src/users/entities/user.model';
+import { Role } from 'src/auth/enums/roles.enum';
 
 @Injectable()
 export class ClassroomService {
@@ -43,7 +45,20 @@ export class ClassroomService {
         return this.classroomRepository.findAll();
     }
 
-    async findOne(id: string): Promise<Classroom> {
+    async findOne(id: string, user: User): Promise<Classroom> {
+        if (user.role === Role.STUDENT) {
+            // Check if the student is enrolled in the classroom
+            const isEnrolled = await this.classroomStudentRepository.isEnrolled(
+                id,
+                user.id,
+            );
+
+            if (!isEnrolled) {
+                throw new ForbiddenException(
+                    'You do not have permission to access this classroom',
+                );
+            }
+        }
         return this.classroomRepository.findOne(id);
     }
 

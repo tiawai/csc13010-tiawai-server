@@ -10,6 +10,9 @@ import { UploadService } from '../../uploader/upload.service';
 import { Sequelize } from 'sequelize-typescript';
 import type { Multer } from 'multer';
 import { ClassroomService } from './classroom.service';
+import { User } from 'src/users/entities/user.model';
+import { ClassroomStudentRepository } from '../repositories/classroom-student.repository';
+import { Role } from 'src/auth/enums/roles.enum';
 
 @Injectable()
 export class LessonService {
@@ -18,6 +21,7 @@ export class LessonService {
         private readonly uploadService: UploadService,
         private readonly sequelize: Sequelize,
         private readonly classroomService: ClassroomService,
+        private readonly classroomStudentRepository: ClassroomStudentRepository,
     ) {}
 
     async create(
@@ -56,11 +60,35 @@ export class LessonService {
         }
     }
 
-    async findAll(classId?: string): Promise<Lesson[]> {
+    async findAll(classId: string, user: User): Promise<Lesson[]> {
+        if (user.role === Role.STUDENT) {
+            const isEnrolled = await this.classroomStudentRepository.isEnrolled(
+                classId,
+                user.id,
+            );
+
+            if (!isEnrolled) {
+                throw new ForbiddenException(
+                    'You do not have permission to access this classroom',
+                );
+            }
+        }
         return this.lessonRepository.findAll(classId);
     }
 
-    async findOne(id: string): Promise<Lesson> {
+    async findOne(id: string, user: User): Promise<Lesson> {
+        if (user.role === Role.STUDENT) {
+            const isEnrolled = await this.classroomStudentRepository.isEnrolled(
+                id,
+                user.id,
+            );
+
+            if (!isEnrolled) {
+                throw new ForbiddenException(
+                    'You do not have permission to access this classroom',
+                );
+            }
+        }
         return this.lessonRepository.findOne(id);
     }
 
