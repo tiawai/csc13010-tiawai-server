@@ -81,6 +81,7 @@ export class PaymentService {
             );
 
             if (created) {
+                t.commit();
                 return created;
             }
 
