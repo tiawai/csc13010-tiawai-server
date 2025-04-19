@@ -15,8 +15,8 @@ export enum PaymentStatus {
 }
 
 export enum PaymentType {
-    CLASSROOM = 'CLASSROOM',
     BALANCE = 'BALANCE',
+    CLASSROOM = 'CLASSROOM',
 }
 
 export enum PayoutStatus {
@@ -63,6 +63,7 @@ export class Payment extends Model {
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
+        defaultValue: 0,
     })
     amount: number;
 
@@ -89,12 +90,23 @@ export class Payment extends Model {
         type: DataType.STRING,
         allowNull: true,
     })
+    description: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
     paymentLink: string;
 
-    // Payout tracking for classroom payments
+    @Column({
+        type: DataType.DATE,
+        allowNull: true,
+    })
+    paymentDate: Date;
+
     @Column({
         type: DataType.ENUM(...Object.values(PayoutStatus)),
-        defaultValue: PayoutStatus.PENDING,
+        allowNull: true,
     })
     payoutStatus: PayoutStatus;
 

@@ -5,10 +5,10 @@ import {
     PaymentType,
     PayoutStatus,
 } from './entities/payment.model';
-import { CreatePaymentDto } from './dtos/create-payment-dto';
 import { BankAccount } from './entities/bank-account.model';
 import { CreateBankAccountDto } from './dtos/create-bank-account.dto';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Transaction, Op } from 'sequelize';
 
 export class PaymentRepository {
     constructor(
@@ -33,36 +33,66 @@ export class PaymentRepository {
             });
     }
 
-    async findOneByOrderCode(orderCode: number) {
+    async findAllByTeacherId(teacherId: string): Promise<Payment[]> {
+        return this.paymentModel
+            .findAll({
+                where: { teacherId },
+                order: [['createdAt', 'DESC']],
+            })
+            .then((payments) => {
+                return payments.map((payment) => payment.dataValues);
+            });
+    }
+
+    async findPaymentClassroom(
+        studentId: string,
+        classroomId: string,
+    ): Promise<Payment | null> {
+        const payment = await this.paymentModel.findOne({
+            where: {
+                studentId,
+                classroomId,
+                status: {
+                    [Op.in]: [PaymentStatus.SUCCESS, PaymentStatus.PENDING],
+                },
+                type: PaymentType.CLASSROOM,
+            },
+        });
+        return payment ? payment.dataValues : null;
+    }
+
+    async findOneByOrderCode(orderCode: number, transaction?: Transaction) {
         const payment = await this.paymentModel.findOne({
             where: { orderCode },
+            lock: transaction.LOCK.UPDATE,
+            transaction: transaction,
         });
         return payment.dataValues as Payment;
     }
 
     async createPayment(
-        studentId: string,
-        data: CreatePaymentDto,
+        payment: Partial<Payment>,
+        transaction?: Transaction,
     ): Promise<Payment> {
-        return await this.paymentModel
-            .create({
-                ...data,
-                studentId,
-                orderCode: Math.floor(Date.now() / 1000),
-                payoutStatus:
-                    data.type === PaymentType.CLASSROOM
-                        ? PayoutStatus.PENDING
-                        : null,
-            })
-            .then((payment) => payment.dataValues);
+        const created = await this.paymentModel.create(
+            { ...payment },
+            { transaction },
+        );
+
+        return created.dataValues;
     }
 
-    async updatePayment(id: string, payment: Partial<Payment>) {
+    async updatePayment(
+        id: string,
+        payment: Partial<Payment>,
+        transaction?: Transaction,
+    ): Promise<Payment> {
         try {
             const [updatedCount, updatedPayment] =
                 await this.paymentModel.update(payment, {
                     where: { id },
                     returning: true,
+                    transaction,
                 });
 
             if (updatedCount === 0) {

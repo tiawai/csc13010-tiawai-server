@@ -5,7 +5,6 @@ import { PaymentController } from './payment.controller';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Payment } from './entities/payment.model';
-import { ScheduleModule } from '@nestjs/schedule';
 import { AccessControlModule } from '../ac/ac.module';
 import { UsersModule } from '../users/users.module';
 import { BankAccount } from './entities/bank-account.model';
@@ -15,7 +14,6 @@ import { ClassroomModule } from 'src/classrooms/classroom.module';
     imports: [
         ConfigModule,
         SequelizeModule.forFeature([Payment, BankAccount]),
-        ScheduleModule.forRoot(),
         AccessControlModule,
         UsersModule,
         ClassroomModule,

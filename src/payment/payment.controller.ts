@@ -7,6 +7,7 @@ import {
     UseGuards,
     Req,
     Put,
+    Res,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -16,7 +17,6 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/roles.enum';
 import { Request } from 'express';
 import { PaymentVerifyDto } from './dtos/payment-verify.dto';
-import { CreatePaymentDto } from './dtos/create-payment-dto';
 import { CreateBankAccountDto } from './dtos/create-bank-account.dto';
 
 interface RequestWithUser extends Request {
@@ -41,7 +41,7 @@ export class PaymentController {
         return this.paymentService.getAllPayments();
     }
 
-    @Get('/student')
+    @Get('student')
     @Roles(Role.STUDENT)
     @UseGuards(ATAuthGuard, RolesGuard)
     @ApiOperation({ summary: 'Get student payments' })
@@ -53,16 +53,40 @@ export class PaymentController {
         return this.paymentService.getStudentPayments(req.user.id);
     }
 
-    @Post()
+    @Get('teacher')
+    @Roles(Role.TEACHER)
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @ApiOperation({ summary: 'Get teacher payments' })
+    @ApiResponse({
+        status: 200,
+        description: 'Teacher payments retrieved successfully',
+    })
+    async getTeacherPayments(@Req() req: RequestWithUser) {
+        return this.paymentService.getTeacherPayments(req.user.id);
+    }
+
+    @Post('classroom/:classroomId')
     @Roles(Role.STUDENT)
     @UseGuards(ATAuthGuard, RolesGuard)
     @ApiOperation({ summary: 'Create a payment' })
     @ApiResponse({ status: 201, description: 'Payment created successfully' })
-    async createPayment(
+    async createPaymentClassroom(
         @Req() req: RequestWithUser,
-        @Body() body: CreatePaymentDto,
+        @Param('classroomId') classroomId: string,
     ) {
-        return this.paymentService.createPayment(req.user.id, body);
+        return await this.paymentService.createPaymentClassroom(
+            req.user.id,
+            classroomId,
+        );
+    }
+
+    @Post('ai')
+    @Roles(Role.STUDENT)
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @ApiOperation({ summary: 'Create a payment' })
+    @ApiResponse({ status: 201, description: 'Payment created successfully' })
+    async createPaymentBalance(@Req() req: RequestWithUser) {
+        return await this.paymentService.createPaymentAI(req.user.id);
     }
 
     @Post('verify')
@@ -102,14 +126,6 @@ export class PaymentController {
     })
     async updatePayoutSuccess() {
         return this.paymentService.updatePayoutSuccess();
-    }
-
-    @Post('webhook')
-    @ApiOperation({ summary: 'Receive PayOS webhook' })
-    @ApiResponse({ status: 200, description: 'Webhook received successfully' })
-    async receiveWebhook(@Body() body: any) {
-        return this.paymentService.receiveWebhook(body);
-        //  return { success: true };
     }
 
     @Get('accounts')
@@ -152,6 +168,14 @@ export class PaymentController {
         @Body() body: CreateBankAccountDto,
     ) {
         return this.paymentService.updateBankAccount(req.user.id, body);
+    }
+
+    @Post('webhook')
+    @ApiOperation({ summary: 'Receive PayOS webhook' })
+    @ApiResponse({ status: 200, description: 'Webhook received successfully' })
+    async receiveWebhook(@Body() body: any) {
+        return this.paymentService.receiveWebhook(body);
+        //  return { success: true };
     }
 
     @Get(':orderCode')

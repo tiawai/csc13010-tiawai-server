@@ -10,6 +10,7 @@ import { Role } from '../auth/enums/roles.enum';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { Redis } from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class UsersRepository {
@@ -276,13 +277,18 @@ export class UsersRepository {
         }
     }
 
-    async updateUserBalance(id: string, amount: number): Promise<User> {
+    async updateUserBalance(
+        id: string,
+        amount: number,
+        transaction?: Transaction,
+    ): Promise<User> {
         try {
             const [updatedCount, updatedUsers] = await this.userModel.update(
                 { balance: amount },
                 {
                     where: { id },
                     returning: true,
+                    transaction,
                 },
             );
 
