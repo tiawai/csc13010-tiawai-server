@@ -140,6 +140,20 @@ export class ClassroomController {
         return this.classroomService.findByTeacher(req.user.id);
     }
 
+    @ApiOperation({ summary: 'Get all tests [TEACHER, STUDENT]' })
+    @ApiBearerAuth('access-token')
+    @Get('tests')
+    @ApiResponse({
+        status: 200,
+        description: 'Tests retrieved successfully',
+        type: [Test],
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async getAllTestsInAllClassrooms(@Request() req: any) {
+        return this.classroomService.getAllTestsInAllClassrooms(req.user.id);
+    }
+
     @Get(':id')
     @ApiOperation({
         summary: 'Get a classroom by ID [STUDENT, TEACHER, ADMIN]',

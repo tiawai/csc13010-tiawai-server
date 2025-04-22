@@ -263,6 +263,12 @@ export class ClassroomService {
         };
     }
 
+    async getAllTestsInAllClassrooms(teacherId: string): Promise<Test[]> {
+        return await this.classroomTestsRepository.getAllTestsInAllClassrooms(
+            teacherId,
+        );
+    }
+
     async getTestsByClassroomId(
         classroomId: string,
         user: User,

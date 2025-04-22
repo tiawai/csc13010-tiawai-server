@@ -19,9 +19,11 @@ import { ClassroomStudent } from './entities/classroom-students.model';
 import { ClassroomTests } from 'src/tests/entities/classroom-tests.model';
 import { ClassroomTestsRepository } from './repositories/classroom-test.repository';
 import { TestsModule } from 'src/tests/tests.module';
+import { Test } from 'src/tests/entities/test.model';
 @Module({
     imports: [
         SequelizeModule.forFeature([
+            Test,
             Classroom,
             ClassroomRating,
             ClassroomStudent,
