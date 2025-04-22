@@ -20,6 +20,7 @@ import { ClassroomModule } from './classrooms/classroom.module';
 import { Classroom } from './classrooms/entities/classroom.model';
 import { ClassroomRating } from './classrooms/entities/classroom-rating.model';
 import { ReportsModule } from './reports/reports.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
     imports: [
@@ -85,6 +86,7 @@ import { ReportsModule } from './reports/reports.module';
         FlashcardModule,
         ClassroomModule,
         ReportsModule,
+        StatisticsModule,
     ],
     controllers: [AppController],
     providers: [AppService],

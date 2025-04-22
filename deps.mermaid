@@ -19,6 +19,7 @@ graph LR
   AppModule-->ScheduleModule
   AppModule-->SequelizeCoreModule
   AppModule-->SequelizeModule
+  AppModule-->StatisticsModule
   AppModule-->TestsModule
   AppModule-->UsersModule
   AuthModule-->ConfigHostModule
@@ -138,6 +139,7 @@ graph LR
   ScheduleModule-->DiscoveryModule
   ScheduleModule-->MailerCoreModule
   ScheduleModule-->RedisCoreModule
+  ScheduleModule-->ScheduleModule
   ScheduleModule-->SequelizeCoreModule
   SequelizeCoreModule-->ConfigHostModule
   SequelizeCoreModule-->ConfigModule
@@ -150,6 +152,14 @@ graph LR
   SequelizeModule-->RedisCoreModule
   SequelizeModule-->ScheduleModule
   SequelizeModule-->SequelizeCoreModule
+  StatisticsModule-->AccessControlModule
+  StatisticsModule-->ConfigHostModule
+  StatisticsModule-->ConfigModule
+  StatisticsModule-->MailerCoreModule
+  StatisticsModule-->RedisCoreModule
+  StatisticsModule-->ScheduleModule
+  StatisticsModule-->SequelizeCoreModule
+  StatisticsModule-->SequelizeModule
   TestsModule-->ClassroomModule
   TestsModule-->ConfigHostModule
   TestsModule-->ConfigModule
