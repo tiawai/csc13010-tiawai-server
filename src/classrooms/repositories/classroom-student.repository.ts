@@ -105,7 +105,7 @@ export class ClassroomStudentRepository {
     async isEnrolled(classId: string, studentId: string): Promise<boolean> {
         const result = await this.classroomStudentModel.findOne({
             where: {
-                classId,
+                classId: classId,
                 userId: studentId,
             },
         });

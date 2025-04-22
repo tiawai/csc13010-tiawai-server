@@ -77,9 +77,10 @@ export class LessonService {
     }
 
     async findOne(id: string, user: User): Promise<Lesson> {
+        const lesson = await this.lessonRepository.findOne(id);
         if (user.role === Role.STUDENT) {
             const isEnrolled = await this.classroomStudentRepository.isEnrolled(
-                id,
+                lesson.dataValues.classId,
                 user.id,
             );
 
@@ -89,7 +90,7 @@ export class LessonService {
                 );
             }
         }
-        return this.lessonRepository.findOne(id);
+        return lesson;
     }
 
     async update(
