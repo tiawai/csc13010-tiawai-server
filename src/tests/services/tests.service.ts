@@ -14,6 +14,8 @@ import { AnswerRepository } from '../repositories/answer.repository';
 import { TestType } from '../enums/test-type.enum';
 import { AnswerSheetDto } from '../dtos/create-answer.dto';
 import { ClassroomTestsRepository } from 'src/classrooms/repositories/classroom-test.repository';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 @Injectable()
 export class TestsService {
     constructor(
@@ -22,6 +24,7 @@ export class TestsService {
         private readonly submissionsRepository: SubmissionsRepository,
         private readonly answerRepository: AnswerRepository,
         private readonly classroomTestsRepository: ClassroomTestsRepository,
+        private readonly configService: ConfigService,
     ) {}
 
     async getAllTests(): Promise<Test[]> {
@@ -154,6 +157,97 @@ export class TestsService {
                 error.message,
             );
         }
+    }
+
+    async getExplanationForTest(testId: string, questionOrder: number) {
+        const test = await this.testsRepository.findById(testId);
+        if (!test) {
+            throw new NotFoundException('Test not found');
+        }
+
+        const questions =
+            await this.questionsService.getQuestionsByTestId(testId);
+
+        let chosenQuestion = null;
+        for (const question of questions) {
+            if (question.questionOrder === questionOrder) {
+                chosenQuestion = question;
+                break;
+            }
+        }
+
+        if (!chosenQuestion) {
+            throw new NotFoundException(
+                `Question with order ${questionOrder} not found`,
+            );
+        }
+
+        if (!chosenQuestion.explanation) {
+            const explanation =
+                await this.generateExplanationWithAI(chosenQuestion);
+            return explanation;
+        }
+
+        return chosenQuestion.explanation;
+    }
+
+    private async generateExplanationWithAI(question: any): Promise<string> {
+        try {
+            const response = await this.createPromptForExplanation(question);
+
+            return response;
+        } catch (error) {
+            console.error('Error generating explanation:', error);
+            return `The correct answer is ${question.correctAnswer}. No detailed explanation is available.`;
+        }
+    }
+
+    private async createPromptForExplanation(question: any): Promise<string> {
+        const questionContent = question.content || '';
+        const choices = question.choices || {};
+        const correctAnswer = question.correctAnswer || '';
+
+        const prompt = `
+        Hãy giải thích rõ ràng và ngắn gọn tại sao câu trả lời đúng là đúng.
+
+        Câu hỏi: ${questionContent}
+
+        Đáp án:
+        A: ${choices.A || ''}
+        B: ${choices.B || ''}
+        C: ${choices.C || ''}
+        D: ${choices.D || ''}
+
+        Đáp án đúng là: ${correctAnswer}
+
+        Giải thích:
+        `;
+
+        const response = await axios.post(
+            `${this.configService.get('OPENAI_ENDPOINT')}`,
+            {
+                model: this.configService.get('OPENAI_ADVANCED_MODEL'),
+                messages: [
+                    {
+                        role: 'system',
+                        content:
+                            'Bạn là một giáo viên dạy tiếng Anh, bạn có thể giúp học sinh hiểu rõ hơn về câu hỏi và câu trả lời đúng của câu hỏi.',
+                    },
+                    {
+                        role: 'user',
+                        content: `${prompt}`,
+                    },
+                ],
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${this.configService.get('OPENAI_API_KEY')}`,
+                },
+            },
+        );
+
+        return response.data.choices[0].message.content;
     }
 
     async getTestById(

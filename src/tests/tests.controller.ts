@@ -45,6 +45,23 @@ export class TestsController {
         private readonly uploadService: UploadService,
     ) {}
 
+    @ApiOperation({ summary: 'Get explanation for test [STUDENT]' })
+    @ApiBearerAuth('access-token')
+    @Get('test/:id/explanation/:order')
+    @ApiResponse({
+        status: 200,
+        description: 'Explanation retrieved successfully',
+        type: Test,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.STUDENT)
+    async getExplanationForTest(
+        @Param('id') id: string,
+        @Param('order') order: number,
+    ) {
+        return this.testsService.getExplanationForTest(id, order);
+    }
+
     @ApiOperation({ summary: 'Get all tests [ADMIN]' })
     @ApiBearerAuth('access-token')
     @Get('admin')
@@ -76,7 +93,9 @@ export class TestsController {
         return this.testsService.getTestSubmissionsByUserId(id, req.user.id);
     }
 
-    @ApiOperation({ summary: 'Get test submissions by user ID [STUDENT]' })
+    @ApiOperation({
+        summary: 'Get test submission details by submission ID [STUDENT]',
+    })
     @ApiBearerAuth('access-token')
     @Get('test/:id/submission/:submissionId')
     @ApiResponse({
