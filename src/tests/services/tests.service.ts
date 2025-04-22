@@ -191,18 +191,26 @@ export class TestsService {
         return chosenQuestion.explanation;
     }
 
-    private async generateExplanationWithAI(question: any): Promise<string> {
+    private async generateExplanationWithAI(question: any): Promise<{
+        body: string;
+        status: number;
+    }> {
         try {
             const response = await this.createPromptForExplanation(question);
-
             return response;
         } catch (error) {
             console.error('Error generating explanation:', error);
-            return `The correct answer is ${question.correctAnswer}. No detailed explanation is available.`;
+            throw new InternalServerErrorException(
+                'Error generating explanation',
+                error.message,
+            );
         }
     }
 
-    private async createPromptForExplanation(question: any): Promise<string> {
+    private async createPromptForExplanation(question: any): Promise<{
+        body: string;
+        status: number;
+    }> {
         const questionContent = question.content || '';
         const choices = question.choices || {};
         const correctAnswer = question.correctAnswer || '';
@@ -226,7 +234,7 @@ export class TestsService {
         const response = await axios.post(
             `${this.configService.get('OPENAI_ENDPOINT')}`,
             {
-                model: this.configService.get('OPENAI_ADVANCED_MODEL'),
+                model: this.configService.get('OPENAI_MODEL'),
                 messages: [
                     {
                         role: 'system',
@@ -247,7 +255,10 @@ export class TestsService {
             },
         );
 
-        return response.data.choices[0].message.content;
+        return {
+            body: response.data.choices[0].message.content,
+            status: response.status,
+        };
     }
 
     async getTestById(
