@@ -3,6 +3,7 @@ import {
     BadRequestException,
     NotFoundException,
     ForbiddenException,
+    InternalServerErrorException,
 } from '@nestjs/common';
 import { Classroom } from '../entities/classroom.model';
 import { CreateClassroomDto } from '../dtos/create-classroom.dto';
@@ -15,13 +16,18 @@ import { ClassroomStudent } from '../entities/classroom-students.model';
 import { StudentInfoDto } from '../dtos/student-info.dto';
 import { User } from 'src/users/entities/user.model';
 import { Role } from 'src/auth/enums/roles.enum';
+import { ClassroomTestsRepository } from '../repositories/classroom-test.repository';
+import { Test } from 'src/tests/entities/test.model';
+import { TestsRepository } from 'src/tests/repositories/tests.repository';
 
 @Injectable()
 export class ClassroomService {
     constructor(
-        private classroomRepository: ClassroomRepository,
-        private classroomRatingRepository: ClassroomRatingRepository,
-        private classroomStudentRepository: ClassroomStudentRepository,
+        private readonly classroomRepository: ClassroomRepository,
+        private readonly classroomRatingRepository: ClassroomRatingRepository,
+        private readonly classroomStudentRepository: ClassroomStudentRepository,
+        private readonly classroomTestsRepository: ClassroomTestsRepository,
+        private readonly testsRepository: TestsRepository,
         private sequelize: Sequelize,
     ) {}
 
@@ -234,6 +240,82 @@ export class ClassroomService {
         return this.classroomStudentRepository.removeStudentFromClassroom(
             classId,
             studentId,
+        );
+    }
+
+    async createClassroomTest(
+        classroomId: string,
+        testId: string,
+    ): Promise<{ classroomId: string; testId: string }> {
+        const classroomTest =
+            await this.classroomTestsRepository.createClassroomTest(
+                classroomId,
+                testId,
+            );
+
+        if (!classroomTest) {
+            throw new InternalServerErrorException(
+                'Error occurs when creating classroom test',
+            );
+        }
+
+        return {
+            classroomId: classroomTest.classroomId,
+            testId: classroomTest.testId,
+        };
+    }
+
+    async getTestsByClassroomId(
+        classroomId: string,
+        user: User,
+    ): Promise<Test[]> {
+        if (user.role === Role.STUDENT) {
+            const isEnrolled = await this.classroomStudentRepository.isEnrolled(
+                classroomId,
+                user.id,
+            );
+
+            if (!isEnrolled) {
+                throw new ForbiddenException(
+                    'You do not have permission to access this classroom',
+                );
+            }
+        }
+
+        const tests =
+            await this.classroomTestsRepository.findByClassroomId(classroomId);
+
+        if (!tests) {
+            throw new NotFoundException('No tests found');
+        }
+
+        const testPromises = tests.map(async (test) => {
+            const testData = await this.testsRepository.findById(test.testId);
+            return testData;
+        });
+
+        return await Promise.all(testPromises);
+    }
+
+    async removeTestFromClassroom(
+        teacherId: string,
+        classId: string,
+        testId: string,
+    ) {
+        const classrooms = await this.findByTeacher(teacherId);
+        const isOwner = classrooms.some(
+            (classroom) => classroom.id === classId,
+        );
+
+        if (!isOwner) {
+            throw new ForbiddenException(
+                'You do not have permission to remove tests from this classroom',
+            );
+        }
+
+        return this.classroomTestsRepository.removeTestFromClassroom(
+            classId,
+            testId,
         );
     }
 }

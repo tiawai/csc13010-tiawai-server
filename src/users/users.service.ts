@@ -8,11 +8,13 @@ import { User } from './entities/user.model';
 import { Role } from '../auth/enums/roles.enum';
 import type { Multer } from 'multer';
 import { UploadService } from '../uploader/upload.service';
+import { SubmissionsRepository } from 'src/tests/repositories/submissions.repository';
 @Injectable()
 export class UsersService {
     constructor(
         private readonly usersRepository: UsersRepository,
         private readonly uploadService: UploadService,
+        private readonly submissionsRepository: SubmissionsRepository,
     ) {}
 
     /*
@@ -143,6 +145,24 @@ export class UsersService {
         } catch (error) {
             throw new InternalServerErrorException(
                 'Error updating profile',
+                error.message,
+            );
+        }
+    }
+
+    async getUserStatistics(userId: string) {
+        try {
+            const testStatistic =
+                await this.submissionsRepository.getSubmissionStatisticsByUserId(
+                    userId,
+                );
+
+            return {
+                ...testStatistic,
+            };
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error getting user statistics',
                 error.message,
             );
         }

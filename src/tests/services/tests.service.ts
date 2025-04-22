@@ -1,5 +1,4 @@
 import {
-    ForbiddenException,
     Injectable,
     InternalServerErrorException,
     NotFoundException,
@@ -14,10 +13,7 @@ import { SubmissionsRepository } from '../repositories/submissions.repository';
 import { AnswerRepository } from '../repositories/answer.repository';
 import { TestType } from '../enums/test-type.enum';
 import { AnswerSheetDto } from '../dtos/create-answer.dto';
-import { ClassroomTestsRepository } from '../repositories/classroom-test.repository';
-import { User } from 'src/users/entities/user.model';
-import { Role } from 'src/auth/enums/roles.enum';
-import { ClassroomStudentRepository } from 'src/classrooms/repositories/classroom-student.repository';
+import { ClassroomTestsRepository } from 'src/classrooms/repositories/classroom-test.repository';
 @Injectable()
 export class TestsService {
     constructor(
@@ -26,7 +22,6 @@ export class TestsService {
         private readonly submissionsRepository: SubmissionsRepository,
         private readonly answerRepository: AnswerRepository,
         private readonly classroomTestsRepository: ClassroomTestsRepository,
-        private readonly classroomStudentRepository: ClassroomStudentRepository,
     ) {}
 
     async getAllTests(): Promise<Test[]> {
@@ -65,10 +60,10 @@ export class TestsService {
             }
 
             if (question.correctAnswer === answer.answer) {
-                score = score + Number(question.points);
-                correctAnswers = correctAnswers + 1;
+                score += Number(question.points);
+                correctAnswers++;
             } else if (answer.answer !== null || answer.answer !== undefined) {
-                incorrectAnswers = incorrectAnswers + 1;
+                incorrectAnswers++;
             }
         }
         const answersWithQuestionId = answers.map((answer) => ({
@@ -103,6 +98,62 @@ export class TestsService {
             incorrectAnswers: incorrectAnswers,
             emptyAnswers: questions.length - correctAnswers - incorrectAnswers,
         };
+    }
+
+    async getSubmissionResult(
+        testId: string,
+        submissionId: string,
+    ): Promise<any> {
+        try {
+            const submission =
+                await this.submissionsRepository.getSubmissionsById(
+                    submissionId,
+                );
+
+            const answers =
+                await this.answerRepository.getAnswersBySubmissionId(
+                    submissionId,
+                );
+
+            const questions =
+                await this.questionsService.getQuestionsByTestId(testId);
+
+            let score: number = 0;
+            let correctAnswers: number = 0;
+            let incorrectAnswers: number = 0;
+            answers.forEach((answer) => {
+                const question = questions.find(
+                    (question) => question.id === answer.questionId,
+                );
+
+                if (question.correctAnswer === answer.answer) {
+                    score += Number(question.points);
+                    correctAnswers++;
+                } else if (
+                    answer.answer !== null ||
+                    answer.answer !== undefined
+                ) {
+                    incorrectAnswers++;
+                }
+            });
+
+            return {
+                result: {
+                    score,
+                    correctAnswers,
+                    incorrectAnswers,
+                    emptyAnswers:
+                        questions.length - correctAnswers - incorrectAnswers,
+                    timeConsumed: submission.timeConsumed,
+                },
+                answers,
+            };
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Failed to get submission result',
+                error.message,
+            );
+        }
     }
 
     async getTestById(
@@ -183,66 +234,37 @@ export class TestsService {
         }
     }
 
-    async getTestsByType(type: TestType): Promise<Test[]> {
+    async getTestsByType(type: TestType) {
         const tests = await this.testsRepository.findByType(type);
         if (!tests) {
             throw new NotFoundException('No tests found');
         }
-        return tests;
+
+        const filteredTests = await Promise.all(
+            tests.map(async (test) => {
+                const isPrivate =
+                    await this.classroomTestsRepository.isPrivateTest(test.id);
+                if (isPrivate) {
+                    return null;
+                }
+                const submissionCount =
+                    await this.submissionsRepository.countSubmissionsByTestId(
+                        test.id,
+                    );
+                return {
+                    ...test,
+                    submissionCount,
+                };
+            }),
+        );
+
+        return filteredTests.filter((t) => t !== null);
     }
 
-    async createClassroomTest(
-        classroomId: string,
-        testId: string,
-    ): Promise<{ classroomId: string; testId: string }> {
-        const classroomTest =
-            await this.classroomTestsRepository.createClassroomTest(
-                classroomId,
-                testId,
-            );
-
-        if (!classroomTest) {
-            throw new InternalServerErrorException(
-                'Error occurs when creating classroom test',
-            );
-        }
-
-        return {
-            classroomId: classroomTest.classroomId,
-            testId: classroomTest.testId,
-        };
-    }
-
-    async getTestsByClassroomId(
-        classroomId: string,
-        user: User,
-    ): Promise<Test[]> {
-        if (user.role === Role.STUDENT) {
-            const isEnrolled = await this.classroomStudentRepository.isEnrolled(
-                classroomId,
-                user.id,
-            );
-
-            if (!isEnrolled) {
-                throw new ForbiddenException(
-                    'You do not have permission to access this classroom',
-                );
-            }
-        }
-
-        const tests =
-            await this.classroomTestsRepository.findByClassroomId(classroomId);
-
-        if (!tests) {
-            throw new NotFoundException('No tests found');
-        }
-
-        const testPromises = tests.map(async (test) => {
-            const testData = await this.getTestById(test.testId);
-            return testData;
-        });
-
-        const res = await Promise.all(testPromises);
-        return res.map((test) => test.test);
+    async getTestSubmissionsByUserId(testId: string, userId: string) {
+        return await this.submissionsRepository.getTestSubmissionsByUserId(
+            testId,
+            userId,
+        );
     }
 }

@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 as uuidv4 } from 'uuid';
-import { ClassroomTests } from '../entities/classroom-tests.model';
+import { ClassroomTests } from '../../tests/entities/classroom-tests.model';
 
 @Injectable()
 export class ClassroomTestsRepository {
@@ -48,6 +48,38 @@ export class ClassroomTestsRepository {
             return classroomTests.map((classroomTest) => {
                 return classroomTest.dataValues as ClassroomTests;
             });
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
+
+    async isPrivateTest(testId: string): Promise<boolean> {
+        try {
+            const classroomTest = await this.choiceModel.findOne({
+                where: { testId },
+            });
+            return !!classroomTest;
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
+
+    async removeTestFromClassroom(classroomId: string, testId: string) {
+        try {
+            const classroomTest = await this.choiceModel.findOne({
+                where: {
+                    classroomId: classroomId,
+                    testId: testId,
+                },
+            });
+
+            if (!classroomTest) {
+                throw new InternalServerErrorException(
+                    'Classroom test not found',
+                );
+            }
+
+            await classroomTest.destroy();
         } catch (error: any) {
             throw new InternalServerErrorException((error as Error).message);
         }

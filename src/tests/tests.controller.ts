@@ -59,6 +59,40 @@ export class TestsController {
         return this.testsService.getAllTests();
     }
 
+    @ApiOperation({ summary: 'Get test submissions by user ID [STUDENT]' })
+    @ApiBearerAuth('access-token')
+    @Get('test/:id/submission')
+    @ApiResponse({
+        status: 200,
+        description: 'Test submissions retrieved successfully',
+        type: [Test],
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.STUDENT)
+    async getTestSubmissionsByUserId(
+        @Request() req: any,
+        @Param('id') id: string,
+    ) {
+        return this.testsService.getTestSubmissionsByUserId(id, req.user.id);
+    }
+
+    @ApiOperation({ summary: 'Get test submissions by user ID [STUDENT]' })
+    @ApiBearerAuth('access-token')
+    @Get('test/:id/submission/:submissionId')
+    @ApiResponse({
+        status: 200,
+        description: 'Test submissions retrieved successfully',
+        type: [Test],
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.STUDENT)
+    async getSubmissionResult(
+        @Param('id') id: string,
+        @Param('submissionId') submissionId: string,
+    ) {
+        return this.testsService.getSubmissionResult(id, submissionId);
+    }
+
     @ApiOperation({ summary: 'Submit a test by ID [STUDENT]' })
     @ApiBearerAuth('access-token')
     @Post('test/:id/submission')
@@ -824,138 +858,5 @@ export class TestsController {
     })
     async getTestsByType(@Query('type') type: TestType) {
         return this.testsService.getTestsByType(type);
-    }
-
-    // create national test teacher
-    @ApiOperation({ summary: 'Create a new national test [TEACHER]' })
-    @ApiBearerAuth('access-token')
-    @Post('teacher/national-test/:classroomId')
-    @ApiResponse({
-        status: 201,
-        description: 'Test created successfully',
-        type: CreateTestResponseDto,
-    })
-    @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.TEACHER)
-    async createNationalTestForTeacher(
-        @Request() req: any,
-        @Param('classroomId') classroomId: string,
-        @Body()
-        createNationalTestWithQuestions: CreateNationalTestWithQuestionsDto,
-    ) {
-        createNationalTestWithQuestions.test.type = TestType.NATIONAL_TEST;
-        const test = await this.testsService.createNationalTest(
-            createNationalTestWithQuestions.test,
-            createNationalTestWithQuestions.questions,
-            req.user.id,
-        );
-
-        await this.testsService.createClassroomTest(classroomId, test.id);
-
-        const result = {
-            id: test.id,
-            title: test.title,
-            type: test.type,
-            startDate: test.startDate,
-            endDate: test.endDate,
-            totalQuestions: test.totalQuestions,
-            timeLength: test.timeLength,
-        };
-
-        return result;
-    }
-
-    // create toeic listening test teacher
-    @ApiOperation({ summary: 'Create a new TOEIC listening test [TEACHER]' })
-    @ApiBearerAuth('access-token')
-    @Post('teacher/toeic-listening-test/:classroomId')
-    @ApiResponse({
-        status: 201,
-        description: 'Test created successfully',
-        type: CreateTestResponseDto,
-    })
-    @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.TEACHER)
-    async createToeicListeningTestForTeacher(
-        @Request() req: any,
-        @Param('classroomId') classroomId: string,
-        @Query('audioUrl') audioUrl: string,
-        @Body()
-        createTestDto: CreateTestDto,
-    ) {
-        createTestDto.type = TestType.TOEIC_LISTENING;
-        const test = await this.testsService.createToeicListeningTest(
-            createTestDto,
-            req.user.id,
-            audioUrl,
-        );
-
-        await this.testsService.createClassroomTest(classroomId, test.id);
-
-        const result = {
-            id: test.id,
-            title: test.title,
-            type: test.type,
-            startDate: test.startDate,
-            endDate: test.endDate,
-            totalQuestions: test.totalQuestions,
-            timeLength: test.timeLength,
-        };
-
-        return result;
-    }
-
-    // create toeic reading test teacher
-    @ApiOperation({ summary: 'Create a new TOEIC reading test [TEACHER]' })
-    @ApiBearerAuth('access-token')
-    @Post('teacher/toeic-reading-test/:classroomId')
-    @ApiResponse({
-        status: 201,
-        description: 'Test created successfully',
-        type: CreateTestResponseDto,
-    })
-    @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.TEACHER)
-    async createToeicReadingTestForTeacher(
-        @Request() req: any,
-        @Param('classroomId') classroomId: string,
-        @Body() createTestDto: CreateTestDto,
-    ) {
-        createTestDto.type = TestType.TOEIC_READING;
-        const test = await this.testsService.createToeicReadingTest(
-            createTestDto,
-            req.user.id,
-        );
-
-        await this.testsService.createClassroomTest(classroomId, test.id);
-
-        const result = {
-            id: test.id,
-            title: test.title,
-            type: test.type,
-            startDate: test.startDate,
-            endDate: test.endDate,
-            totalQuestions: test.totalQuestions,
-            timeLength: test.timeLength,
-        };
-
-        return result;
-    }
-
-    @ApiOperation({ summary: 'Get tests by classroom ID [TEACHER, STUDENT]' })
-    @ApiBearerAuth('access-token')
-    @Get('classroom/:classroomId')
-    @ApiResponse({
-        status: 200,
-        description: 'Tests retrieved successfully',
-        type: [Test],
-    })
-    @UseGuards(ATAuthGuard, RolesGuard)
-    @Roles(Role.TEACHER, Role.STUDENT)
-    async getTestsByClassroomId(
-        @Request() req: any,
-        @Param('classroomId') classroomId: string,
-    ) {
-        return this.testsService.getTestsByClassroomId(classroomId, req.user);
     }
 }

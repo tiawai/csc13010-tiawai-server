@@ -35,4 +35,11 @@ export class AnswerRepository {
 
         return createdAnswers;
     }
+
+    async getAnswersBySubmissionId(submissionId: string): Promise<Answer[]> {
+        return await this.answerModel.findAll({
+            where: { submissionId },
+            raw: true,
+        });
+    }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TestsController } from './tests.controller';
 import { TestsService } from './services/tests.service';
 import { TestsRepository } from './repositories/tests.repository';
@@ -16,7 +16,6 @@ import { Answer } from './entities/answer.model';
 import { AccessControlService } from '../ac/ac.service';
 import { UploadService } from '../uploader/upload.service';
 import { ClassroomTests } from './entities/classroom-tests.model';
-import { ClassroomTestsRepository } from './repositories/classroom-test.repository';
 import { ClassroomModule } from 'src/classrooms/classroom.module';
 
 @Module({
@@ -27,9 +26,8 @@ import { ClassroomModule } from 'src/classrooms/classroom.module';
             Choice,
             Submission,
             Answer,
-            ClassroomTests,
         ]),
-        ClassroomModule,
+        forwardRef(() => ClassroomModule),
     ],
     controllers: [TestsController],
     providers: [
@@ -42,8 +40,12 @@ import { ClassroomModule } from 'src/classrooms/classroom.module';
         AnswerRepository,
         AccessControlService,
         UploadService,
-        ClassroomTestsRepository,
     ],
-    exports: [TestsService, QuestionsService],
+    exports: [
+        TestsService,
+        TestsRepository,
+        QuestionsService,
+        SubmissionsRepository,
+    ],
 })
 export class TestsModule {}

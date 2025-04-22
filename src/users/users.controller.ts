@@ -172,4 +172,25 @@ export class UsersController {
     ) {
         return this.usersService.updateProfileImage(req.user.id, file);
     }
+
+    @ApiOperation({ summary: 'Get user statistics [USER]' })
+    @ApiBearerAuth('access-token')
+    @Get('user/statistics')
+    @ApiResponse({
+        status: 200,
+        description: 'Get user statistics successfully',
+        schema: {
+            type: 'object',
+            properties: {
+                toeicTestCompleted: { type: 'number' },
+                nationalTestCompleted: { type: 'number' },
+                vocabularyLearned: { type: 'number' },
+            },
+        },
+    })
+    @Roles(Role.STUDENT)
+    @UseGuards(ATAuthGuard)
+    async getUserStatistics(@Request() req: any) {
+        return await this.usersService.getUserStatistics(req.user.id);
+    }
 }

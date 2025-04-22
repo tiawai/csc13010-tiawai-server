@@ -12,6 +12,7 @@ import {
     UploadedFile,
     ForbiddenException,
     NotFoundException,
+    Query,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -35,6 +36,14 @@ import { UploadService } from '../../uploader/upload.service';
 import { AddStudentDto } from '../dtos/add-student.dto';
 import { ClassroomStudent } from '../entities/classroom-students.model';
 import { StudentInfoDto } from '../dtos/student-info.dto';
+import {
+    CreateTestDto,
+    CreateTestResponseDto,
+} from 'src/tests/dtos/create-test.dto';
+import { TestType } from 'src/tests/enums/test-type.enum';
+import { TestsService } from 'src/tests/services/tests.service';
+import { CreateNationalTestWithQuestionsDto } from 'src/tests/dtos/create-national-test-with-questions.dto';
+import { Test } from 'src/tests/entities/test.model';
 
 @ApiTags('Classrooms')
 @Controller('classrooms')
@@ -44,6 +53,7 @@ export class ClassroomController {
     constructor(
         private readonly classroomService: ClassroomService,
         private readonly uploadService: UploadService,
+        private readonly testsService: TestsService,
     ) {}
 
     @Post()
@@ -402,5 +412,165 @@ export class ClassroomController {
         }
 
         return { message: 'Student removed from classroom successfully' };
+    }
+
+    @ApiOperation({ summary: 'Create a new national test [TEACHER]' })
+    @ApiBearerAuth('access-token')
+    @Post(':id/tests/national-test')
+    @ApiResponse({
+        status: 201,
+        description: 'Test created successfully',
+        type: CreateTestResponseDto,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async createNationalTestForClassroom(
+        @Request() req: any,
+        @Param('id') id: string,
+        @Body()
+        createNationalTestWithQuestions: CreateNationalTestWithQuestionsDto,
+    ) {
+        createNationalTestWithQuestions.test.type = TestType.NATIONAL_TEST;
+        const test = await this.testsService.createNationalTest(
+            createNationalTestWithQuestions.test,
+            createNationalTestWithQuestions.questions,
+            req.user.id,
+        );
+
+        await this.classroomService.createClassroomTest(id, test.id);
+
+        const result = {
+            id: test.id,
+            title: test.title,
+            type: test.type,
+            startDate: test.startDate,
+            endDate: test.endDate,
+            totalQuestions: test.totalQuestions,
+            timeLength: test.timeLength,
+        };
+
+        return result;
+    }
+
+    @ApiOperation({ summary: 'Create a new TOEIC listening test [TEACHER]' })
+    @ApiBearerAuth('access-token')
+    @Post(':id/tests/toeic-listening-test')
+    @ApiResponse({
+        status: 201,
+        description: 'Test created successfully',
+        type: CreateTestResponseDto,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async createToeicListeningTestForTeacher(
+        @Request() req: any,
+        @Param('id') id: string,
+        @Query('audioUrl') audioUrl: string,
+        @Body()
+        createTestDto: CreateTestDto,
+    ) {
+        createTestDto.type = TestType.TOEIC_LISTENING;
+        const test = await this.testsService.createToeicListeningTest(
+            createTestDto,
+            req.user.id,
+            audioUrl,
+        );
+
+        await this.classroomService.createClassroomTest(id, test.id);
+
+        const result = {
+            id: test.id,
+            title: test.title,
+            type: test.type,
+            startDate: test.startDate,
+            endDate: test.endDate,
+            totalQuestions: test.totalQuestions,
+            timeLength: test.timeLength,
+        };
+
+        return result;
+    }
+
+    // create toeic reading test teacher
+    @ApiOperation({ summary: 'Create a new TOEIC reading test [TEACHER]' })
+    @ApiBearerAuth('access-token')
+    @Post(':id/tests/toeic-reading-test')
+    @ApiResponse({
+        status: 201,
+        description: 'Test created successfully',
+        type: CreateTestResponseDto,
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER)
+    async createToeicReadingTestForTeacher(
+        @Request() req: any,
+        @Param('classroomId') classroomId: string,
+        @Body() createTestDto: CreateTestDto,
+    ) {
+        createTestDto.type = TestType.TOEIC_READING;
+        const test = await this.testsService.createToeicReadingTest(
+            createTestDto,
+            req.user.id,
+        );
+
+        await this.classroomService.createClassroomTest(classroomId, test.id);
+
+        const result = {
+            id: test.id,
+            title: test.title,
+            type: test.type,
+            startDate: test.startDate,
+            endDate: test.endDate,
+            totalQuestions: test.totalQuestions,
+            timeLength: test.timeLength,
+        };
+
+        return result;
+    }
+
+    @ApiOperation({ summary: 'Get tests by classroom ID [TEACHER, STUDENT]' })
+    @ApiBearerAuth('access-token')
+    @Get(':id/tests')
+    @ApiResponse({
+        status: 200,
+        description: 'Tests retrieved successfully',
+        type: [Test],
+    })
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @Roles(Role.TEACHER, Role.STUDENT)
+    async getTestsByClassroomId(@Request() req: any, @Param('id') id: string) {
+        return this.classroomService.getTestsByClassroomId(id, req.user);
+    }
+
+    @Delete(':id/tests/:testId')
+    @ApiOperation({
+        summary: 'Remove a test from a classroom [TEACHER]',
+    })
+    @ApiParam({ name: 'id', description: 'Classroom ID' })
+    @ApiParam({ name: 'testId', description: 'Test ID to remove' })
+    @ApiResponse({
+        status: 200,
+        description: 'Test removed from classroom successfully',
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Teacher does not own this classroom',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Classroom or test not found',
+    })
+    @UseGuards(RolesGuard)
+    @Roles(Role.TEACHER)
+    async removeTestFromClassroom(
+        @Param('id') classId: string,
+        @Param('testId') testId: string,
+        @Request() req,
+    ) {
+        return await this.classroomService.removeTestFromClassroom(
+            req.user.id,
+            classId,
+            testId,
+        );
     }
 }

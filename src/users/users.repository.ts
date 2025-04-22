@@ -301,4 +301,33 @@ export class UsersRepository {
             throw new InternalServerErrorException((error as Error).message);
         }
     }
+
+    async getUserStatistics(userId: string): Promise<{
+        toeicExamsCompleted: number;
+        thptExamsCompleted: number;
+        vocabularyLearned: number;
+    }> {
+        try {
+            const user = await this.userModel.findOne<User>({
+                where: { id: userId },
+                attributes: [
+                    'toeicExamsCompleted',
+                    'thptExamsCompleted',
+                    'vocabularyLearned',
+                ],
+            });
+
+            if (!user) {
+                throw new NotFoundException(`User with id ${userId} not found`);
+            }
+
+            return {
+                toeicExamsCompleted: 0,
+                thptExamsCompleted: 0,
+                vocabularyLearned: 0,
+            };
+        } catch (error: any) {
+            throw new InternalServerErrorException((error as Error).message);
+        }
+    }
 }

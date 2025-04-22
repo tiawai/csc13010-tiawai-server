@@ -1,5 +1,13 @@
-import { Column, Model, Table } from 'sequelize-typescript';
+import {
+    BelongsTo,
+    Column,
+    ForeignKey,
+    Model,
+    Table,
+} from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
+import { Test } from './test.model';
+import { User } from 'src/users/entities/user.model';
 
 @Table({
     tableName: 'submissions',
@@ -15,6 +23,7 @@ export class Submission extends Model {
     })
     declare id: string;
 
+    @ForeignKey(() => Test)
     @Column({
         type: DataTypes.UUID,
         allowNull: false,
@@ -27,6 +36,10 @@ export class Submission extends Model {
     })
     testId: string;
 
+    @BelongsTo(() => Test)
+    test: Test;
+
+    @ForeignKey(() => User)
     @Column({
         type: DataTypes.UUID,
         allowNull: false,

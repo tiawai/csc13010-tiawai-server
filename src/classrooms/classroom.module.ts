@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ClassroomController } from './controllers/classroom.controller';
 import { ClassroomService } from './services/classroom.service';
@@ -16,12 +16,16 @@ import { LessonController } from './controllers/lesson.controller';
 import { LessonService } from './services/lesson.service';
 import { LessonRepository } from './repositories/lesson.repository';
 import { ClassroomStudent } from './entities/classroom-students.model';
+import { ClassroomTests } from 'src/tests/entities/classroom-tests.model';
+import { ClassroomTestsRepository } from './repositories/classroom-test.repository';
+import { TestsModule } from 'src/tests/tests.module';
 @Module({
     imports: [
         SequelizeModule.forFeature([
             Classroom,
             ClassroomRating,
             ClassroomStudent,
+            ClassroomTests,
             Lesson,
         ]),
         MulterModule.register({
@@ -31,6 +35,7 @@ import { ClassroomStudent } from './entities/classroom-students.model';
             },
         }),
         UploadModule,
+        forwardRef(() => TestsModule),
     ],
     controllers: [ClassroomController, LessonController],
     providers: [
@@ -38,6 +43,7 @@ import { ClassroomStudent } from './entities/classroom-students.model';
         ClassroomRepository,
         ClassroomRatingRepository,
         ClassroomStudentRepository,
+        ClassroomTestsRepository,
         LessonService,
         LessonRepository,
         AccessControlService,
@@ -47,6 +53,7 @@ import { ClassroomStudent } from './entities/classroom-students.model';
         LessonService,
         ClassroomRepository,
         ClassroomStudentRepository,
+        ClassroomTestsRepository,
     ],
 })
 export class ClassroomModule {}
