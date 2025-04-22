@@ -204,7 +204,7 @@ export class TestsService {
     }
 
     private async generateExplanationWithAI(question: any): Promise<{
-        body: string;
+        content: string;
         status: number;
     }> {
         try {
@@ -220,7 +220,7 @@ export class TestsService {
     }
 
     private async createPromptForExplanation(question: any): Promise<{
-        body: string;
+        content: string;
         status: number;
     }> {
         const questionContent = question.content || '';
@@ -268,7 +268,7 @@ export class TestsService {
         );
 
         return {
-            body: response.data.choices[0].message.content,
+            content: response.data.choices[0].message.content,
             status: response.status,
         };
     }
