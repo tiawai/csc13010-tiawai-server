@@ -28,28 +28,28 @@ export class Choice extends Model {
     questionId: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: '',
     })
     A: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: '',
     })
     B: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: '',
     })
     C: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: '',
     })

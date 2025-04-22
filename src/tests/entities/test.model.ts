@@ -17,7 +17,7 @@ export class Test extends Model {
     declare id: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     })
     title: string;

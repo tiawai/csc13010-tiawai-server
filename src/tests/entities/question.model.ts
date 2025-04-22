@@ -22,13 +22,13 @@ export class Question extends Model {
     questionOrder: number;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
     })
     paragraph: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
     })
     content: string;
@@ -46,7 +46,7 @@ export class Question extends Model {
     correctAnswer: string;
 
     @Column({
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
     })
     explanation: string;

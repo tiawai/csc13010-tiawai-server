@@ -66,8 +66,8 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     const port = configService.get('SERVER_PORT');
 
-    app.use(json({ limit: '10mb' }));
-    app.use(urlencoded({ extended: true, limit: '10mb' }));
+    app.use(json({ limit: '200mb' }));
+    app.use(urlencoded({ extended: true, limit: '200mb' }));
 
     app.enableCors({ credentials: true, origin: true });
 
