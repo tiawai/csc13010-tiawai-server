@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ClassroomTests } from '../../tests/entities/classroom-tests.model';
 import { Classroom } from '../entities/classroom.model';
 import { Test } from 'src/tests/entities/test.model';
+import { Submission } from 'src/tests/entities/submission.model';
 
 @Injectable()
 export class ClassroomTestsRepository {
@@ -14,6 +15,8 @@ export class ClassroomTestsRepository {
         private readonly classroomModel: typeof Classroom,
         @InjectModel(ClassroomTests)
         private readonly ClassroomTestsModel: typeof ClassroomTests,
+        @InjectModel(Submission)
+        private readonly submissionModel: typeof Submission,
     ) {}
 
     async createClassroomTest(
@@ -59,13 +62,12 @@ export class ClassroomTestsRepository {
         }
     }
 
-    async getAllTestsInAllClassrooms(teacherId: string): Promise<Test[]> {
+    async getAllTestsInAllClassrooms(teacherId: string) {
         try {
             const classrooms = await this.classroomModel.findAll({
                 where: { teacherId: teacherId },
                 raw: true,
             });
-            console.log('classrooms', classrooms);
 
             const classroomTests = await Promise.all(
                 classrooms.map(async (classroom) => {
@@ -75,14 +77,22 @@ export class ClassroomTestsRepository {
                     });
                 }),
             ).then((classroomTests) => classroomTests.flat());
-            console.log('classroomTests', classroomTests);
 
             return await Promise.all(
                 classroomTests.map(async (classroomTest) => {
-                    return await this.testsModel.findOne({
-                        where: { id: classroomTest.testId },
+                    const testId = classroomTest.testId;
+                    const test = await this.testsModel.findOne({
+                        where: { id: testId },
                         raw: true,
                     });
+                    const submissionCount = await this.submissionModel.count({
+                        where: { testId: testId },
+                    });
+                    return {
+                        ...test,
+                        classroomId: classroomTest.classroomId,
+                        submissionCount,
+                    };
                 }),
             ).then((tests) => tests.flat());
         } catch (error: any) {

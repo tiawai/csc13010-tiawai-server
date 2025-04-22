@@ -20,6 +20,7 @@ import { ClassroomTests } from 'src/tests/entities/classroom-tests.model';
 import { ClassroomTestsRepository } from './repositories/classroom-test.repository';
 import { TestsModule } from 'src/tests/tests.module';
 import { Test } from 'src/tests/entities/test.model';
+import { Submission } from 'src/tests/entities/submission.model';
 @Module({
     imports: [
         SequelizeModule.forFeature([
@@ -29,6 +30,7 @@ import { Test } from 'src/tests/entities/test.model';
             ClassroomStudent,
             ClassroomTests,
             Lesson,
+            Submission,
         ]),
         MulterModule.register({
             storage: memoryStorage(),

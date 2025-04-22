@@ -4,12 +4,15 @@ import { Test } from '../entities/test.model';
 import { CreateTestDto } from '../dtos/create-test.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { TestType } from '../enums/test-type.enum';
+import { Submission } from '../entities/submission.model';
 
 @Injectable()
 export class TestsRepository {
     constructor(
         @InjectModel(Test)
         private readonly testModel: typeof Test,
+        @InjectModel(Submission)
+        private readonly submissionModel: typeof Submission,
     ) {}
 
     async findAll(): Promise<Test[]> {
@@ -21,10 +24,16 @@ export class TestsRepository {
         }
     }
 
-    async findById(id: string): Promise<Test> {
+    async findById(id: string) {
         try {
             const test = await this.testModel.findByPk<Test>(id);
-            return test.dataValues as Test;
+            const submissionCount = await this.submissionModel.count({
+                where: { testId: test.id },
+            });
+            return {
+                ...test.dataValues,
+                submissionCount,
+            };
         } catch (error: any) {
             throw new InternalServerErrorException((error as Error).message);
         }

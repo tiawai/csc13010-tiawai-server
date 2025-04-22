@@ -263,16 +263,13 @@ export class ClassroomService {
         };
     }
 
-    async getAllTestsInAllClassrooms(teacherId: string): Promise<Test[]> {
+    async getAllTestsInAllClassrooms(teacherId: string) {
         return await this.classroomTestsRepository.getAllTestsInAllClassrooms(
             teacherId,
         );
     }
 
-    async getTestsByClassroomId(
-        classroomId: string,
-        user: User,
-    ): Promise<Test[]> {
+    async getTestsByClassroomId(classroomId: string, user: User) {
         if (user.role === Role.STUDENT) {
             const isEnrolled = await this.classroomStudentRepository.isEnrolled(
                 classroomId,
