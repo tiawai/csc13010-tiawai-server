@@ -70,14 +70,22 @@ export class ClassroomStudentRepository {
         return students;
     }
 
-    async getClassroomsByStudent(
-        studentId: string,
-    ): Promise<ClassroomStudent[]> {
-        return this.classroomStudentModel.findAll({
-            where: {
-                userId: studentId,
-            },
+    async getClassroomsByStudent(studentId: string): Promise<any[]> {
+        const query = `
+            SELECT c.id, c."className", c.description, c."backgroundImage",
+                   c."maxStudent", c.price, c."avgRating", c."totalLessons",
+                   c."classCode", c."teacherId", c."createdAt", c."updatedAt"
+            FROM classroom_students cs
+            JOIN classrooms c ON cs."classId" = c.id
+            WHERE cs."userId" = :studentId
+        `;
+
+        const classrooms = await this.sequelize.query(query, {
+            replacements: { studentId },
+            type: 'SELECT',
         });
+
+        return classrooms;
     }
 
     async removeStudentFromClassroom(

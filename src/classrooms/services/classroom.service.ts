@@ -212,9 +212,7 @@ export class ClassroomService {
         return this.classroomStudentRepository.getStudentsByClassroom(classId);
     }
 
-    async getClassroomsByStudent(
-        studentId: string,
-    ): Promise<ClassroomStudent[]> {
+    async getClassroomsByStudent(studentId: string): Promise<any[]> {
         return this.classroomStudentRepository.getClassroomsByStudent(
             studentId,
         );
