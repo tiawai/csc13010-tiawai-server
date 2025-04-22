@@ -228,7 +228,7 @@ export class TestsService {
         const correctAnswer = question.correctAnswer || '';
 
         const prompt = `
-        Hãy giải thích rõ ràng và ngắn gọn tại sao câu trả lời đúng là đúng.
+        Hãy giải thích rõ ràng và ngắn gọn tại sao câu trả lời đúng là đúng. Không sử dụng định dạng Markdown.
 
         Câu hỏi: ${questionContent}
 
