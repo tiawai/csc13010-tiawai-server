@@ -38,7 +38,7 @@ export class CreateQuestionDto {
     explanation?: string;
 
     @ApiProperty({ description: 'Points for this question' })
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     points: number;
 

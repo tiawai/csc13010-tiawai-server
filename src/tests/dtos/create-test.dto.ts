@@ -4,6 +4,7 @@ import {
     IsEnum,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
 } from 'class-validator';
 import { TestType } from '../enums/test-type.enum';
@@ -20,7 +21,7 @@ export class CreateTestDto {
         enum: TestType,
         enumName: 'TestType',
     })
-    @IsNotEmpty()
+    @IsOptional()
     @IsEnum(TestType)
     type: TestType;
 

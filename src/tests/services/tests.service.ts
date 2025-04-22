@@ -140,6 +140,18 @@ export class TestsService {
                 }
             });
 
+            const mappedAnswers = answers.map((answer) => ({
+                ...answer,
+                questionOrder: questions.find(
+                    (question) => question.id === answer.questionId,
+                )?.questionOrder,
+            }));
+
+            console.log(mappedAnswers);
+            const sortedAnswers = mappedAnswers.sort(
+                (a, b) => a.questionOrder - b.questionOrder,
+            );
+            console.log('sorted', sortedAnswers);
             return {
                 result: {
                     score,
@@ -149,7 +161,7 @@ export class TestsService {
                         questions.length - correctAnswers - incorrectAnswers,
                     timeConsumed: submission.timeConsumed,
                 },
-                answers,
+                answers: sortedAnswers,
             };
         } catch (error) {
             throw new InternalServerErrorException(
