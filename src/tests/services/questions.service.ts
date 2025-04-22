@@ -31,7 +31,7 @@ export class QuestionsService {
             for (let i = 0; i < totalQuestions; i++) {
                 const question = {
                     ...questions[i],
-                    explanation: null,
+                    explanation: questions[i].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
@@ -182,7 +182,7 @@ export class QuestionsService {
                     ...questions[i],
                     paragraph: null,
                     content: null,
-                    explanation: null,
+                    explanation: questions[i].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
@@ -237,7 +237,7 @@ export class QuestionsService {
                     images: [],
                     paragraph: null,
                     content: questions[i].content,
-                    explanation: null,
+                    explanation: questions[i].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
@@ -316,7 +316,7 @@ export class QuestionsService {
                                 : [],
                         paragraph: null,
                         content: questionData?.content,
-                        explanation: null,
+                        explanation: questionData?.explanation || null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
@@ -366,7 +366,7 @@ export class QuestionsService {
                     images: [],
                     paragraph: null,
                     content: questions[i - offset].content,
-                    explanation: null,
+                    explanation: questions[i - offset].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
@@ -414,7 +414,7 @@ export class QuestionsService {
                     ...questions[i - offset],
                     paragraph: null,
                     content: null,
-                    explanation: null,
+                    explanation: questions[i - offset].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
@@ -469,7 +469,7 @@ export class QuestionsService {
                     images: [],
                     paragraph: null,
                     content: questions[i - offset].content,
-                    explanation: null,
+                    explanation: questions[i - offset].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
                 const questionId = uuidv4();
@@ -549,7 +549,7 @@ export class QuestionsService {
                                 : [],
                         paragraph: null,
                         content: questionData?.content,
-                        explanation: null,
+                        explanation: questionData?.explanation || null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
 
@@ -601,7 +601,7 @@ export class QuestionsService {
                     paragraph: null,
                     images: [],
                     content: questions[i - offset].content,
-                    explanation: null,
+                    explanation: questions[i - offset].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
 
@@ -676,7 +676,8 @@ export class QuestionsService {
                                 : [],
                         paragraph: null,
                         content: questions[idx - offset].content,
-                        explanation: null,
+                        explanation:
+                            questions[idx - offset].explanation || null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
@@ -726,7 +727,7 @@ export class QuestionsService {
                     ...questions[i - offset],
                     paragraph: null,
                     content: questions[i - offset].content,
-                    explanation: null,
+                    explanation: questions[i - offset].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
                 };
 
@@ -801,7 +802,8 @@ export class QuestionsService {
                                 : [],
                         paragraph: null,
                         content: questions[idx - offset].content,
-                        explanation: null,
+                        explanation:
+                            questions[idx - offset].explanation || null,
                         points: Number((10 / totalQuestions).toFixed(2)),
                     };
                     const questionId = uuidv4();
