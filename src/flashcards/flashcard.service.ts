@@ -75,7 +75,7 @@ export class FlashcardService {
             const response = await axios.post(
                 `${this.configService.get('OPENAI_ENDPOINT')}`,
                 {
-                    model: this.configService.get('OPENAI_ADVANCED_MODEL'),
+                    model: this.configService.get('OPENAI_MODEL'),
                     messages: [
                         {
                             role: 'system',
