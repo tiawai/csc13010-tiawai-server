@@ -43,7 +43,7 @@ export class Payment extends Model {
     @ForeignKey(() => User)
     @Column({
         type: DataType.UUID,
-        allowNull: false,
+        allowNull: true,
     })
     studentId: string;
 
