@@ -69,7 +69,7 @@ export class PracticeService {
                 parseMsg = JSON.parse(msg);
             } catch (jsonError: any) {
                 console.log(
-                    'Initial JSON parsing failed, attempting to fix malformed JSON...',
+                    `Initial JSON parsing failed, attempting to fix malformed JSON...${jsonError.message}`,
                 );
                 const fixedJson = this.sanitizeJsonString(msg);
 
@@ -186,7 +186,7 @@ export class PracticeService {
             return JSON.parse(cleaned);
         } catch (error: any) {
             throw new Error(
-                'Failed to repair malformed JSON. Consider using a proper JSON repair library.',
+                `Failed to repair malformed JSON. Consider using a proper JSON repair library. ${error.message}`,
             );
         }
     }
