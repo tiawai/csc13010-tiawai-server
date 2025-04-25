@@ -397,9 +397,11 @@ export class TestsService {
             if (!test) {
                 throw new NotFoundException('Test not found');
             }
-            const submissions =
-                await this.submissionsRepository.getTestRankings(testId);
-            if (!submissions || submissions.length === 0) {
+
+            const allSubmissions =
+                await this.submissionsRepository.getSubmissionsByTestId(testId);
+
+            if (!allSubmissions || allSubmissions.length === 0) {
                 return {
                     testId: test.id,
                     testTitle: test.title,
@@ -407,9 +409,44 @@ export class TestsService {
                     rankings: [],
                 };
             }
+
+            const bestSubmissionsByUser = new Map();
+
+            allSubmissions.forEach((submission) => {
+                const userId = submission.dataValues.userId;
+
+                if (!bestSubmissionsByUser.has(userId)) {
+                    bestSubmissionsByUser.set(userId, submission);
+                    return;
+                }
+
+                const existingBest = bestSubmissionsByUser.get(userId);
+
+                if (
+                    submission.dataValues.score > existingBest.dataValues.score
+                ) {
+                    bestSubmissionsByUser.set(userId, submission);
+                } else if (
+                    submission.dataValues.score ===
+                        existingBest.dataValues.score &&
+                    submission.dataValues.timeConsumed <
+                        existingBest.dataValues.timeConsumed
+                ) {
+                    bestSubmissionsByUser.set(userId, submission);
+                }
+            });
+
+            const bestSubmissions = Array.from(bestSubmissionsByUser.values());
+
+            const sortedSubmissions = bestSubmissions.sort((a, b) => {
+                if (b.dataValues.score !== a.dataValues.score) {
+                    return b.dataValues.score - a.dataValues.score;
+                }
+                return a.dataValues.timeConsumed - b.dataValues.timeConsumed;
+            });
+
             const rankings: TestParticipantRankingDto[] = await Promise.all(
-                submissions.map(async (submission, index) => {
-                    // Calculate number of correct answers based on score and points per question
+                sortedSubmissions.map(async (submission, index) => {
                     const totalQuestions = test.totalQuestions;
                     const pointsPerQuestion = 1;
                     const correctAnswers = Math.round(
@@ -444,7 +481,7 @@ export class TestsService {
             return {
                 testId: test.id,
                 testTitle: test.title,
-                totalParticipants: submissions.length,
+                totalParticipants: bestSubmissions.length,
                 rankings,
             };
         } catch (error) {

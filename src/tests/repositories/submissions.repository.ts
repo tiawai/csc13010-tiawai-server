@@ -125,4 +125,20 @@ export class SubmissionsRepository {
             );
         }
     }
+
+    async getSubmissionsByTestId(testId: string): Promise<Submission[]> {
+        try {
+            return this.submissionModel.findAll({
+                where: { testId },
+                order: [
+                    ['score', 'DESC'],
+                    ['timeConsumed', 'ASC'],
+                ],
+            });
+        } catch (error: any) {
+            throw new InternalServerErrorException(
+                `Error fetching submissions: ${(error as Error).message}`,
+            );
+        }
+    }
 }
