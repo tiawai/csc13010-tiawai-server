@@ -359,7 +359,7 @@ export class PaymentService {
                             teacher.teacherId,
                         );
 
-                    if (!bankAccount) {
+                    if (!bankAccount.accountNumber) {
                         return null;
                     }
 
