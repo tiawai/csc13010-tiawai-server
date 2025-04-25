@@ -7,7 +7,6 @@ import {
     UseGuards,
     Req,
     Put,
-    Res,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';

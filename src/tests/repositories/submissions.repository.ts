@@ -4,7 +4,6 @@ import { Submission } from '../entities/submission.model';
 import { v4 as uuidv4 } from 'uuid';
 import { TestType } from '../enums/test-type.enum';
 import { Test } from '../entities/test.model';
-import { Sequelize } from 'sequelize';
 
 @Injectable()
 export class SubmissionsRepository {
