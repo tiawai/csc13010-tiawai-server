@@ -448,7 +448,7 @@ export class TestsService {
             const rankings: TestParticipantRankingDto[] = await Promise.all(
                 sortedSubmissions.map(async (submission, index) => {
                     const totalQuestions = test.totalQuestions;
-                    const pointsPerQuestion = 1;
+                    const pointsPerQuestion = 10 / test.totalQuestions;
                     const correctAnswers = Math.round(
                         submission.dataValues.score / pointsPerQuestion,
                     );

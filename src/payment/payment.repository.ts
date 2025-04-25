@@ -61,6 +61,20 @@ export class PaymentRepository {
         return payment ? payment.dataValues : null;
     }
 
+    async findPaymentAI(teacherId: string): Promise<Payment | null> {
+        const payment = await this.paymentModel.findOne({
+            where: {
+                teacherId,
+                status: {
+                    [Op.in]: [PaymentStatus.PENDING],
+                },
+                type: PaymentType.BALANCE,
+            },
+            order: [['createdAt', 'DESC']],
+        });
+        return payment ? payment.dataValues : null;
+    }
+
     async findOneByOrderCode(orderCode: number, transaction?: Transaction) {
         const payment = await this.paymentModel.findOne({
             where: { orderCode },
@@ -105,6 +119,48 @@ export class PaymentRepository {
                 'Error updating payment: ' + error.message,
             );
         }
+    }
+
+    async canUseAI(teacherId: string): Promise<boolean> {
+        const payments = await this.paymentModel.findAll({
+            where: {
+                teacherId,
+                status: PaymentStatus.SUCCESS,
+                type: PaymentType.BALANCE,
+                payoutStatus: PayoutStatus.PENDING,
+            },
+        });
+        return payments.length > 0;
+    }
+
+    async deletePaymentAI(teacherId: string): Promise<Payment> {
+        const payments = await this.paymentModel.findAll({
+            where: {
+                teacherId,
+                status: PaymentStatus.SUCCESS,
+                type: PaymentType.BALANCE,
+                payoutStatus: PayoutStatus.PENDING,
+            },
+            raw: true,
+        });
+        const [affectedCount, updatedPayments] = await this.paymentModel.update(
+            {
+                payoutStatus: PayoutStatus.SUCCESS,
+                payoutDate: new Date(),
+            },
+            {
+                where: {
+                    id: payments[0].id,
+                },
+                returning: true,
+            },
+        );
+
+        if (affectedCount === 0 || !updatedPayments.length) {
+            throw new Error('No payment was updated');
+        }
+
+        return updatedPayments[0];
     }
 
     async updatePayout(id: string, payoutStatus: PayoutStatus) {

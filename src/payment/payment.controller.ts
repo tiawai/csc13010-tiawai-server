@@ -7,6 +7,7 @@ import {
     UseGuards,
     Req,
     Put,
+    Delete,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -80,16 +81,40 @@ export class PaymentController {
     }
 
     @Post('ai')
-    @Roles(Role.STUDENT)
+    @Roles(Role.TEACHER)
     @UseGuards(ATAuthGuard, RolesGuard)
-    @ApiOperation({ summary: 'Create a payment' })
-    @ApiResponse({ status: 201, description: 'Payment created successfully' })
+    @ApiOperation({ summary: 'Create a payment ai' })
+    @ApiResponse({
+        status: 201,
+        description: 'Payment ai created successfully',
+    })
     async createPaymentBalance(@Req() req: RequestWithUser) {
         return await this.paymentService.createPaymentAI(req.user.id);
     }
 
+    @Get('ai/checkout')
+    @Roles(Role.TEACHER)
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @ApiOperation({ summary: 'Verify PayOS payment' })
+    @ApiResponse({ status: 200, description: 'Payment verified successfully' })
+    async canUseAI(@Req() req: RequestWithUser) {
+        return await this.paymentService.canUseAI(req.user.id);
+    }
+
+    @Delete('ai')
+    @Roles(Role.TEACHER)
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @ApiOperation({ summary: 'Delete payment ai' })
+    @ApiResponse({
+        status: 200,
+        description: 'Payment ai deleted successfully',
+    })
+    async deletePaymentAI(@Req() req: RequestWithUser) {
+        return await this.paymentService.deletePaymentAI(req.user.id);
+    }
+
     @Post('verify')
-    @Roles(Role.STUDENT)
+    @Roles(Role.STUDENT, Role.TEACHER)
     @UseGuards(ATAuthGuard, RolesGuard)
     @ApiOperation({ summary: 'Verify PayOS payment' })
     @ApiResponse({ status: 200, description: 'Payment verified successfully' })
