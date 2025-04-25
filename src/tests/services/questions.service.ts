@@ -173,8 +173,12 @@ export class QuestionsService {
         testId: string,
         totalQuestions: number,
         questions: CreateQuestionDto[],
+        imagesUrls: string[],
     ): Promise<Question[]> {
         try {
+            const urls: Map<number, { url: string; sequence: number }[]> =
+                this.parseImageUrlsToQuestions(imagesUrls);
+
             const createdQuestions: Question[] = [];
 
             for (let i = 0; i < 6; i++) {
@@ -184,6 +188,7 @@ export class QuestionsService {
                     content: null,
                     explanation: questions[i].explanation || null,
                     points: Number((10 / totalQuestions).toFixed(2)),
+                    images: urls.get(i + 1)?.map((item) => item.url) || [],
                 };
                 const questionId = uuidv4();
                 const emptyChoice = {
