@@ -44,6 +44,7 @@ import { PracticeService } from './services/practice.service';
 import { CategoryDto } from './dtos/category.dto';
 import { CreateQuestionDto } from './dtos/create-question.dto';
 import { TestTrackingService } from './services/test-tracking.service';
+import { TestRankingResponseDto } from './dtos/test-ranking.dto';
 @Controller('tests')
 export class TestsController {
     constructor(
@@ -903,10 +904,7 @@ export class TestsController {
     async generatePracticeQuestions(
         @Request() req: any,
         @Query(new ValidationPipe()) query: CategoryDto,
-    ): Promise<{
-        test_info: Test;
-        questions: CreateQuestionDto[];
-    }> {
+    ): Promise<CreateQuestionDto[]> {
         return await this.practiceService.generatePracticeQuestions(
             req.user,
             query.category,
@@ -968,5 +966,22 @@ export class TestsController {
             success: true,
             message: 'Abandonment status cleared successfully.',
         };
+    }
+
+    @ApiOperation({
+        summary: 'Get rankings for a test [ADMIN, TEACHER, STUDENT]',
+    })
+    @ApiBearerAuth('access-token')
+    @Get('test/:id/rankings')
+    @ApiResponse({
+        status: 200,
+        description: 'Test rankings retrieved successfully',
+        type: TestRankingResponseDto,
+    })
+    @UseGuards(ATAuthGuard)
+    async getTestRankings(
+        @Param('id') id: string,
+    ): Promise<TestRankingResponseDto> {
+        return this.testsService.getTestRankings(id);
     }
 }

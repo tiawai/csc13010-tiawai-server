@@ -16,6 +16,11 @@ import { AnswerSheetDto } from '../dtos/create-answer.dto';
 import { ClassroomTestsRepository } from 'src/classrooms/repositories/classroom-test.repository';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import {
+    TestRankingResponseDto,
+    TestParticipantRankingDto,
+} from '../dtos/test-ranking.dto';
+import { UsersRepository } from '../../users/users.repository';
 @Injectable()
 export class TestsService {
     constructor(
@@ -25,6 +30,7 @@ export class TestsService {
         private readonly answerRepository: AnswerRepository,
         private readonly classroomTestsRepository: ClassroomTestsRepository,
         private readonly configService: ConfigService,
+        private readonly usersRepository: UsersRepository,
     ) {}
 
     async getAllTests(): Promise<Test[]> {
@@ -383,5 +389,105 @@ export class TestsService {
             testId,
             userId,
         );
+    }
+
+    async getTestRankings(testId: string): Promise<TestRankingResponseDto> {
+        try {
+            const test = await this.testsRepository.findById(testId);
+            if (!test) {
+                throw new NotFoundException('Test not found');
+            }
+
+            const allSubmissions =
+                await this.submissionsRepository.getSubmissionsByTestId(testId);
+
+            if (!allSubmissions || allSubmissions.length === 0) {
+                return {
+                    testId: test.id,
+                    testTitle: test.title,
+                    totalParticipants: 0,
+                    rankings: [],
+                };
+            }
+
+            const bestSubmissionsByUser = new Map();
+
+            allSubmissions.forEach((submission) => {
+                const userId = submission.dataValues.userId;
+
+                if (!bestSubmissionsByUser.has(userId)) {
+                    bestSubmissionsByUser.set(userId, submission);
+                    return;
+                }
+
+                const existingBest = bestSubmissionsByUser.get(userId);
+
+                if (
+                    submission.dataValues.score > existingBest.dataValues.score
+                ) {
+                    bestSubmissionsByUser.set(userId, submission);
+                } else if (
+                    submission.dataValues.score ===
+                        existingBest.dataValues.score &&
+                    submission.dataValues.timeConsumed <
+                        existingBest.dataValues.timeConsumed
+                ) {
+                    bestSubmissionsByUser.set(userId, submission);
+                }
+            });
+
+            const bestSubmissions = Array.from(bestSubmissionsByUser.values());
+
+            const sortedSubmissions = bestSubmissions.sort((a, b) => {
+                if (b.dataValues.score !== a.dataValues.score) {
+                    return b.dataValues.score - a.dataValues.score;
+                }
+                return a.dataValues.timeConsumed - b.dataValues.timeConsumed;
+            });
+
+            const rankings: TestParticipantRankingDto[] = await Promise.all(
+                sortedSubmissions.map(async (submission, index) => {
+                    const totalQuestions = test.totalQuestions;
+                    const pointsPerQuestion = 1;
+                    const correctAnswers = Math.round(
+                        submission.dataValues.score / pointsPerQuestion,
+                    );
+                    const percentage = (correctAnswers / totalQuestions) * 100;
+
+                    const minutes = Math.floor(
+                        submission.dataValues.timeConsumed / 60,
+                    );
+                    const seconds = submission.dataValues.timeConsumed % 60;
+                    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    const user = await this.usersRepository.findOneById(
+                        submission.dataValues.userId,
+                    );
+                    return {
+                        rank: index + 1,
+                        userId: user.id,
+                        username: user.username,
+                        email: user.email,
+                        score: submission.score,
+                        correctAnswers,
+                        totalQuestions,
+                        percentage: parseFloat(percentage.toFixed(2)),
+                        timeConsumed: submission.timeConsumed,
+                        formattedTime,
+                        submitAt: submission.submitAt,
+                    };
+                }),
+            );
+
+            return {
+                testId: test.id,
+                testTitle: test.title,
+                totalParticipants: bestSubmissions.length,
+                rankings,
+            };
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Error getting test rankings: ${error.message}`,
+            );
+        }
     }
 }
