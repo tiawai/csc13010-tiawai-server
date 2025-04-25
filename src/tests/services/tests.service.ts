@@ -16,6 +16,11 @@ import { AnswerSheetDto } from '../dtos/create-answer.dto';
 import { ClassroomTestsRepository } from 'src/classrooms/repositories/classroom-test.repository';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import {
+    TestRankingResponseDto,
+    TestParticipantRankingDto,
+} from '../dtos/test-ranking.dto';
+import { UsersRepository } from '../../users/users.repository';
 @Injectable()
 export class TestsService {
     constructor(
@@ -25,6 +30,7 @@ export class TestsService {
         private readonly answerRepository: AnswerRepository,
         private readonly classroomTestsRepository: ClassroomTestsRepository,
         private readonly configService: ConfigService,
+        private readonly usersRepository: UsersRepository,
     ) {}
 
     async getAllTests(): Promise<Test[]> {
@@ -383,5 +389,68 @@ export class TestsService {
             testId,
             userId,
         );
+    }
+
+    async getTestRankings(testId: string): Promise<TestRankingResponseDto> {
+        try {
+            const test = await this.testsRepository.findById(testId);
+            if (!test) {
+                throw new NotFoundException('Test not found');
+            }
+            const submissions =
+                await this.submissionsRepository.getTestRankings(testId);
+            if (!submissions || submissions.length === 0) {
+                return {
+                    testId: test.id,
+                    testTitle: test.title,
+                    totalParticipants: 0,
+                    rankings: [],
+                };
+            }
+            const rankings: TestParticipantRankingDto[] = await Promise.all(
+                submissions.map(async (submission, index) => {
+                    // Calculate number of correct answers based on score and points per question
+                    const totalQuestions = test.totalQuestions;
+                    const pointsPerQuestion = 1;
+                    const correctAnswers = Math.round(
+                        submission.dataValues.score / pointsPerQuestion,
+                    );
+                    const percentage = (correctAnswers / totalQuestions) * 100;
+
+                    const minutes = Math.floor(
+                        submission.dataValues.timeConsumed / 60,
+                    );
+                    const seconds = submission.dataValues.timeConsumed % 60;
+                    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    const user = await this.usersRepository.findOneById(
+                        submission.dataValues.userId,
+                    );
+                    return {
+                        rank: index + 1,
+                        userId: user.id,
+                        username: user.username,
+                        email: user.email,
+                        score: submission.score,
+                        correctAnswers,
+                        totalQuestions,
+                        percentage: parseFloat(percentage.toFixed(2)),
+                        timeConsumed: submission.timeConsumed,
+                        formattedTime,
+                        submitAt: submission.submitAt,
+                    };
+                }),
+            );
+
+            return {
+                testId: test.id,
+                testTitle: test.title,
+                totalParticipants: submissions.length,
+                rankings,
+            };
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Error getting test rankings: ${error.message}`,
+            );
+        }
     }
 }

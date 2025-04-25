@@ -112,4 +112,17 @@ export class SubmissionsRepository {
             throw new InternalServerErrorException((error as Error).message);
         }
     }
+
+    async getTestRankings(testId: string): Promise<any[]> {
+        try {
+            const submissions = await this.submissionModel.findAll({
+                where: { testId },
+            });
+            return submissions;
+        } catch (error: any) {
+            throw new InternalServerErrorException(
+                `Error fetching test rankings: ${(error as Error).message}`,
+            );
+        }
+    }
 }
