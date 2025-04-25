@@ -410,6 +410,7 @@ export class TestsController {
             testId,
             100,
             updateDto.questions,
+            updateDto.imageUrls,
         );
 
         return {
