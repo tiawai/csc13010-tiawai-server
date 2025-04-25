@@ -63,13 +63,13 @@ export class MessageService {
                 where: { sessionId },
             });
 
-            messages.forEach((message) => {
+            for (const message of messages) {
                 if (message.isBot) {
-                    chatHistory.addAIMessage(message.content);
+                    await chatHistory.addAIMessage(message.content);
                 } else {
-                    chatHistory.addUserMessage(message.content);
+                    await chatHistory.addUserMessage(message.content);
                 }
-            });
+            }
 
             await this.messageModel.create(createMessageDto);
 
@@ -87,8 +87,7 @@ export class MessageService {
                 content: answer.answer,
                 isBot: true,
             });
-
-            return this.toMessageResponseDto(message);
+            return this.toMessageResponseDto(message.dataValues);
         } catch (error) {
             throw new HttpException(error.message, error.status);
         }
@@ -126,13 +125,15 @@ export class MessageService {
             }
 
             const lastMessage = messages.pop();
-            messages.forEach((message) => {
+            for (const message of messages) {
                 if (message.dataValues.isBot) {
-                    chatHistory.addAIMessage(message.dataValues.content);
+                    await chatHistory.addAIMessage(message.dataValues.content);
                 } else {
-                    chatHistory.addUserMessage(message.dataValues.content);
+                    await chatHistory.addUserMessage(
+                        message.dataValues.content,
+                    );
                 }
-            });
+            }
 
             const chain = this.loadRagChain(chatHistory, TEMPLATES);
             const answer = await (

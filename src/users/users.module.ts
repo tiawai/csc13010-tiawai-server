@@ -6,7 +6,6 @@ import { UsersController } from './users.controller';
 import { AccessControlService } from '../ac/ac.service';
 import { UsersRepository } from './users.repository';
 import { UploadService } from '../uploader/upload.service';
-import { SubmissionsRepository } from 'src/tests/repositories/submissions.repository';
 import { TestsModule } from 'src/tests/tests.module';
 @Module({
     imports: [SequelizeModule.forFeature([User]), TestsModule],

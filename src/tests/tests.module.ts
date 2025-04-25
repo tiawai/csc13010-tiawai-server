@@ -15,8 +15,12 @@ import { Submission } from './entities/submission.model';
 import { Answer } from './entities/answer.model';
 import { AccessControlService } from '../ac/ac.service';
 import { UploadService } from '../uploader/upload.service';
-import { ClassroomTests } from './entities/classroom-tests.model';
 import { ClassroomModule } from 'src/classrooms/classroom.module';
+import { PracticeService } from './services/practice.service';
+import { MessageService } from 'src/chat/services/message.service';
+import { ChatSession } from 'src/chat/entities/chat-session.entity';
+import { Message } from 'src/chat/entities/message.entity';
+import { VectorStoreService } from 'src/vector-store/vector-store.service';
 
 @Module({
     imports: [
@@ -26,12 +30,15 @@ import { ClassroomModule } from 'src/classrooms/classroom.module';
             Choice,
             Submission,
             Answer,
+            ChatSession,
+            Message,
         ]),
         forwardRef(() => ClassroomModule),
     ],
     controllers: [TestsController],
     providers: [
         TestsService,
+        VectorStoreService,
         TestsRepository,
         QuestionsService,
         QuestionsRepository,
@@ -40,12 +47,15 @@ import { ClassroomModule } from 'src/classrooms/classroom.module';
         AnswerRepository,
         AccessControlService,
         UploadService,
+        PracticeService,
+        MessageService,
     ],
     exports: [
         TestsService,
         TestsRepository,
         QuestionsService,
         SubmissionsRepository,
+        PracticeService,
     ],
 })
 export class TestsModule {}

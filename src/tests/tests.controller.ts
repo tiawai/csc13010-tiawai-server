@@ -12,6 +12,8 @@ import {
     Query,
     ParseBoolPipe,
     BadRequestException,
+    HttpCode,
+    ValidationPipe,
 } from '@nestjs/common';
 import { TestsService } from './services/tests.service';
 import { UploadService } from '../uploader/upload.service';
@@ -37,12 +39,16 @@ import type { Multer } from 'multer';
 import { UpdateToeicQuestionsDto } from './dtos/update-toeic-questions.dto';
 import { QuestionsService } from './services/questions.service';
 import { AnswerSheetDto } from './dtos/create-answer.dto';
+import { PracticeService } from './services/practice.service';
+import { CategoryDto } from './dtos/category.dto';
+import { CreateQuestionDto } from './dtos/create-question.dto';
 @Controller('tests')
 export class TestsController {
     constructor(
         private readonly testsService: TestsService,
         private readonly questionsService: QuestionsService,
         private readonly uploadService: UploadService,
+        private readonly practiceService: PracticeService,
     ) {}
 
     @ApiOperation({ summary: 'Get explanation for test [STUDENT]' })
@@ -877,5 +883,29 @@ export class TestsController {
     })
     async getTestsByType(@Query('type') type: TestType) {
         return this.testsService.getTestsByType(type);
+    }
+
+    @ApiOperation({ summary: 'Generate practice questions [TEACHER]' })
+    @ApiResponse({
+        status: 200,
+        description: 'Practice questions generated successfully',
+        type: Test,
+    })
+    @HttpCode(200)
+    @UseGuards(ATAuthGuard, RolesGuard)
+    @ApiBearerAuth('access-token')
+    @Roles(Role.TEACHER)
+    @Post('practice-test')
+    async generatePracticeQuestions(
+        @Request() req: any,
+        @Query(new ValidationPipe()) query: CategoryDto,
+    ): Promise<{
+        test_info: Test;
+        questions: CreateQuestionDto[];
+    }> {
+        return await this.practiceService.generatePracticeQuestions(
+            req.user,
+            query.category,
+        );
     }
 }
