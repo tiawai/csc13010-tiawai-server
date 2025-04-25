@@ -44,6 +44,7 @@ import { TestType } from 'src/tests/enums/test-type.enum';
 import { TestsService } from 'src/tests/services/tests.service';
 import { CreateNationalTestWithQuestionsDto } from 'src/tests/dtos/create-national-test-with-questions.dto';
 import { Test } from 'src/tests/entities/test.model';
+import { Public } from '../../auth/decorators/public.decorator';
 
 @ApiTags('Classrooms')
 @Controller('classrooms')
@@ -110,6 +111,18 @@ export class ClassroomController {
             createClassroomDto,
             backgroundImageUrl,
         );
+    }
+
+    @Get('top-rated')
+    @Public()
+    @ApiOperation({ summary: 'Get top 3 highest rated classrooms [PUBLIC]' })
+    @ApiResponse({
+        status: 200,
+        description: 'Return top 3 highest rated classrooms',
+        type: [Classroom],
+    })
+    async getTopRatedClassrooms() {
+        return this.classroomService.getTopRatedClassrooms(3);
     }
 
     @Get()
@@ -258,6 +271,12 @@ export class ClassroomController {
     @UseGuards(RolesGuard)
     @Roles(Role.TEACHER, Role.ADMIN)
     async remove(@Param('id') id: string, @Request() req) {
+        // Skip ownership check for admins
+        if (req.user.role === Role.ADMIN) {
+            return this.classroomService.remove(id);
+        }
+
+        // For teachers, verify ownership
         const classrooms = await this.classroomService.findByTeacher(
             req.user.id,
         );

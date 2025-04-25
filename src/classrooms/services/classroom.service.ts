@@ -17,7 +17,6 @@ import { StudentInfoDto } from '../dtos/student-info.dto';
 import { User } from 'src/users/entities/user.model';
 import { Role } from 'src/auth/enums/roles.enum';
 import { ClassroomTestsRepository } from '../repositories/classroom-test.repository';
-import { Test } from 'src/tests/entities/test.model';
 import { TestsRepository } from 'src/tests/repositories/tests.repository';
 
 @Injectable()
@@ -86,6 +85,13 @@ export class ClassroomService {
 
     async remove(id: string): Promise<void> {
         return this.classroomRepository.remove(id);
+    }
+
+    async getTopRatedClassrooms(limit: number): Promise<Classroom[]> {
+        const classrooms = await this.classroomRepository.findAll();
+        return classrooms
+            .sort((a, b) => b.avgRating - a.avgRating)
+            .slice(0, limit);
     }
 
     async rateClassroom(
