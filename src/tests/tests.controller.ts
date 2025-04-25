@@ -14,6 +14,7 @@ import {
     BadRequestException,
     HttpCode,
     ValidationPipe,
+    Delete,
 } from '@nestjs/common';
 import { TestsService } from './services/tests.service';
 import { UploadService } from '../uploader/upload.service';
@@ -42,6 +43,7 @@ import { AnswerSheetDto } from './dtos/create-answer.dto';
 import { PracticeService } from './services/practice.service';
 import { CategoryDto } from './dtos/category.dto';
 import { CreateQuestionDto } from './dtos/create-question.dto';
+import { TestTrackingService } from './services/test-tracking.service';
 @Controller('tests')
 export class TestsController {
     constructor(
@@ -49,6 +51,7 @@ export class TestsController {
         private readonly questionsService: QuestionsService,
         private readonly uploadService: UploadService,
         private readonly practiceService: PracticeService,
+        private readonly testTrackingService: TestTrackingService,
     ) {}
 
     @ApiOperation({ summary: 'Get explanation for test [STUDENT]' })
@@ -907,5 +910,62 @@ export class TestsController {
             req.user,
             query.category,
         );
+    }
+
+    @ApiOperation({ summary: 'Track abandoned test' })
+    @ApiBearerAuth('access-token')
+    @Post('test/:id/abandoned')
+    @ApiResponse({
+        status: 200,
+        description: 'Test abandonment tracked successfully',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean' },
+                message: { type: 'string' },
+            },
+        },
+    })
+    @UseGuards(ATAuthGuard)
+    async trackAbandonedTest(
+        @Request() req: any,
+        @Param('id') testId: string,
+        @Body() body: { timeLeft?: number },
+    ) {
+        await this.testTrackingService.trackAbandonedTest(
+            req.user.id,
+            testId,
+            body.timeLeft,
+        );
+
+        return {
+            success: true,
+            message:
+                'Abandonment tracked successfully. You will receive a reminder email.',
+        };
+    }
+
+    @ApiOperation({ summary: 'Clear abandoned test status' })
+    @ApiBearerAuth('access-token')
+    @Delete('test/:id/abandoned')
+    @ApiResponse({
+        status: 200,
+        description: 'Test abandonment status cleared successfully',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean' },
+                message: { type: 'string' },
+            },
+        },
+    })
+    @UseGuards(ATAuthGuard)
+    async clearAbandonedTest(@Request() req: any, @Param('id') testId: string) {
+        await this.testTrackingService.clearAbandonedTest(req.user.id, testId);
+
+        return {
+            success: true,
+            message: 'Abandonment status cleared successfully.',
+        };
     }
 }

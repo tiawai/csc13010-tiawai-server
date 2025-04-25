@@ -21,6 +21,9 @@ import { MessageService } from 'src/chat/services/message.service';
 import { ChatSession } from 'src/chat/entities/chat-session.entity';
 import { Message } from 'src/chat/entities/message.entity';
 import { VectorStoreService } from 'src/vector-store/vector-store.service';
+import { TestTrackingService } from './services/test-tracking.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
     imports: [
@@ -34,6 +37,8 @@ import { VectorStoreService } from 'src/vector-store/vector-store.service';
             Message,
         ]),
         forwardRef(() => ClassroomModule),
+        forwardRef(() => UsersModule),
+        ScheduleModule.forRoot(),
     ],
     controllers: [TestsController],
     providers: [
@@ -49,6 +54,7 @@ import { VectorStoreService } from 'src/vector-store/vector-store.service';
         UploadService,
         PracticeService,
         MessageService,
+        TestTrackingService,
     ],
     exports: [
         TestsService,
@@ -56,6 +62,7 @@ import { VectorStoreService } from 'src/vector-store/vector-store.service';
         QuestionsService,
         SubmissionsRepository,
         PracticeService,
+        TestTrackingService,
     ],
 })
 export class TestsModule {}

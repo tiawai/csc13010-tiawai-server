@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.model';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -8,7 +8,10 @@ import { UsersRepository } from './users.repository';
 import { UploadService } from '../uploader/upload.service';
 import { TestsModule } from 'src/tests/tests.module';
 @Module({
-    imports: [SequelizeModule.forFeature([User]), TestsModule],
+    imports: [
+        SequelizeModule.forFeature([User]),
+        forwardRef(() => TestsModule),
+    ],
     controllers: [UsersController],
     providers: [
         UsersService,
