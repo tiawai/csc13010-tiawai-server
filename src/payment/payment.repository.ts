@@ -153,10 +153,8 @@ export class PaymentRepository {
     }
 
     async updateBankAccount(userId: string, data: CreateBankAccountDto) {
-        const bankAccount = await this.findBankAccountByUserId(userId);
-        if (!bankAccount) {
-            throw new Error('Bank account not found');
-        }
-        return bankAccount.update(data);
+        return this.bankAccountModel.update(data, {
+            where: { userId },
+        });
     }
 }
