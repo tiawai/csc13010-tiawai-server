@@ -148,8 +148,17 @@ export class PaymentService {
         const t = await this.sequelize.transaction();
         const orderCode = this.generateOrderCode();
         let paymentLink = null;
+        let payment = null;
 
         try {
+            const created =
+                await this.paymentRepository.findPaymentAI(teacherId);
+
+            if (created) {
+                t.commit();
+                return created;
+            }
+
             const amount = 5000;
             const description = `Tao de thi AI`;
 
@@ -161,7 +170,7 @@ export class PaymentService {
                 cancelUrl: `${this.FRONTEND_URL}/payment/cancel`,
             });
 
-            const payment = await this.paymentRepository.createPayment(
+            payment = await this.paymentRepository.createPayment(
                 {
                     teacherId,
                     amount,
@@ -184,6 +193,14 @@ export class PaymentService {
                 `Failed to create payment: ${error.message}`,
             );
         }
+    }
+
+    async canUseAI(teacherId: string) {
+        return await this.paymentRepository.canUseAI(teacherId);
+    }
+
+    async deletePaymentAI(teacherId: string) {
+        return await this.paymentRepository.deletePaymentAI(teacherId);
     }
 
     async verifyPayment(paymentVerifyDto: PaymentVerifyDto) {
@@ -292,17 +309,12 @@ export class PaymentService {
                 throw new NotFoundException('Teacher not found');
             }
 
-            await this.userRepository.updateUserBalance(
-                teacher.id,
-                teacher.balance + payment.amount,
-                t,
-            );
-
             return await this.paymentRepository.updatePayment(
                 payment.id,
                 {
                     status: PaymentStatus.SUCCESS,
                     paymentDate: new Date(),
+                    payoutStatus: PayoutStatus.PENDING,
                 },
                 t,
             );
