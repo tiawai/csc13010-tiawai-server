@@ -8,7 +8,7 @@ import {
 import { BankAccount } from './entities/bank-account.model';
 import { CreateBankAccountDto } from './dtos/create-bank-account.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { Transaction, Op, where } from 'sequelize';
+import { Transaction, Op } from 'sequelize';
 
 export class PaymentRepository {
     constructor(
