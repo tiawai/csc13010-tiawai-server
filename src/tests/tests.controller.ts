@@ -904,10 +904,7 @@ export class TestsController {
     async generatePracticeQuestions(
         @Request() req: any,
         @Query(new ValidationPipe()) query: CategoryDto,
-    ): Promise<{
-        test_info: Test;
-        questions: CreateQuestionDto[];
-    }> {
+    ): Promise<CreateQuestionDto[]> {
         return await this.practiceService.generatePracticeQuestions(
             req.user,
             query.category,

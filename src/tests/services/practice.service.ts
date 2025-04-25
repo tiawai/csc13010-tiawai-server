@@ -10,7 +10,6 @@ import { CreateMessageDto } from '../../chat/dtos/create-message.dto';
 import { CreateQuestionDto } from '../dtos/create-question.dto';
 import { ConfigService } from '@nestjs/config';
 import { Question } from '../entities/question.model';
-import { TestType } from '../enums/test-type.enum';
 @Injectable()
 export class PracticeService {
     constructor(
@@ -25,10 +24,7 @@ export class PracticeService {
     async generatePracticeQuestions(
         user: User,
         category: Category,
-    ): Promise<{
-        test_info: Test;
-        questions: CreateQuestionDto[];
-    }> {
+    ): Promise<CreateQuestionDto[]> {
         try {
             const chosenTestId = this.configService.get('CHOSEN_TEST_ID');
             const newQuestions: CreateQuestionDto[] = [];
@@ -77,26 +73,7 @@ export class PracticeService {
                 };
                 newQuestions.push(question);
             }
-            console.log(newQuestions, newQuestions.length);
-            const test = await this.testModel.create({
-                type: TestType.ASSIGNMENT,
-                title: 'blank',
-                questions: newQuestions,
-                totalQuestions: 10,
-                uploadAt: new Date(),
-                duration: 15,
-                isGenerated: true,
-                author: user.id,
-                startDate: new Date(),
-                endDate: new Date(new Date().getTime() + 15 * 60 * 1000),
-            });
-            console.log(test);
-            test.title = `[${new Date().toLocaleDateString()}] Chuyên đề ${category} #${test.id}`;
-            await test.save();
-            return {
-                test_info: test.dataValues,
-                questions: newQuestions,
-            };
+            return newQuestions;
         } catch (error) {
             throw new InternalServerErrorException(
                 'Failed to generate practice questions',
